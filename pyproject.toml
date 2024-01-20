@@ -2,7 +2,12 @@
 name = "core-auto-app"
 version = "0.1.0"
 description = "Add your description here"
-dependencies = []
+dependencies = [
+    "torch==2.1.0; platform_machine != 'aarch64'",
+    "torch @ https://developer.download.nvidia.cn/compute/redist/jp/v512/pytorch/torch-2.1.0a0+41361538.nv23.06-cp38-cp38-linux_aarch64.whl ; platform_machine == 'aarch64'",
+    "torchvision==0.16.0; platform_machine != 'aarch64'",
+    "torchvision @ git+https://github.com/pytorch/vision.git@v0.16.0 ; platform_machine == 'aarch64'",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
