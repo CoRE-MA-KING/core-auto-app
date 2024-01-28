@@ -1,21 +1,7 @@
 from core_auto_app.application.application import Application
 
-from core_auto_app.application.interfaces import Camera, Presenter
-
-
-class DummyCamera(Camera):
-    def start(self):
-        return
-
-    def stop(self):
-        return
-
-    def get_images(self):
-        return None, None
-
-    def close(self):
-        print("closing camera")
-        return
+from core_auto_app.application.interfaces import Presenter
+from core_auto_app.infra.realsense_camera import RealsenseCamera
 
 
 class DummyPresenter(Presenter):
@@ -31,7 +17,7 @@ class DummyPresenter(Presenter):
 
 
 def main():
-    camera = DummyCamera()
+    camera = RealsenseCamera()
     presenter = DummyPresenter()
 
     app = Application(camera, presenter)
@@ -39,8 +25,8 @@ def main():
     try:
         app.spin()
 
-    except Exception as e:
-        print(e)
+    except KeyboardInterrupt as e:
+        print(f"KeyboardInterrupt {e}")
 
     finally:
         app.close()

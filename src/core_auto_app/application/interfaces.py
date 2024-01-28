@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 
@@ -30,7 +30,7 @@ class Camera(ABC):
         pass
 
     @abstractmethod
-    def get_images(self) -> Tuple[np.ndarray, np.ndarray]:
+    def get_images(self) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """Get both color and depth images."""
         pass
 

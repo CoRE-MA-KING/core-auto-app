@@ -1,11 +1,12 @@
 # python generated files
 __pycache__/
 *.py[oc]
+3rdparty/
 build/
 dist/
 wheels/
+*.bag
 *.egg-info
 
 # venv
 .venv
-3rdparty/
