@@ -7,48 +7,80 @@ from core_auto_app.application.interfaces import Camera
 
 
 class RealsenseCamera(Camera):
+    """RealSenseカメラからカラー画像とデプス画像を取得するクラス
+
+    Args:
+        record_path: 録画の保存先のファイルパス
+
+    Attributes:
+        pipeline: RealSenseのパイプライン
+        config: RealSenseの設定
+
+    Notes:
+        https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.html
+    """
+
     def __init__(self, record_path: Optional[str] = None):
         self.pipeline = rs.pipeline()
         self.config = rs.config()
         self.config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
         self.config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
 
-        # Create an align object
+        # カラーフレームとデプスフレームを整列させるalignオブジェクト
         self.align = rs.align(align_to=rs.stream.color)
 
-        # Save frames to a bag file if file path is specified
+        # 保存先が指定されていた場合、録画機能を有効にする
         if record_path:
             self.config.enable_record_to_file(record_path)
 
+        self._is_running = False
+
+    @property
+    def is_running(self):
+        return self._is_running
+
     def start(self):
+        """カメラストリームを開始させる"""
         self.pipeline.start(self.config)
+        self._is_running = True
 
     def stop(self):
+        """カメラストリームを停止させる"""
         self.pipeline.stop()
+        self._is_running = False
 
     def get_images(self):
-        # Get new frames
+        """カラー画像とデプス画像を取得する
+
+        Returns:
+            color_image: カラー画像
+            depth_image: デプス画像
+        """
+        assert self.is_running, "Camera not running. Please call start() first."
+
+        # 新しいフレームを取得
         frames = self.pipeline.wait_for_frames()
 
-        # Align the depth frame to color frame
+        # デプスとカラーを整列させたフレームを取得する
         aligned_frames = self.align.process(frames)
 
-        # Get aligned frames
+        # カラーとデプスそれぞれ取り出す
         color_frame = aligned_frames.get_color_frame()
         aligned_depth_frame = aligned_frames.get_depth_frame()
 
-        # Validate that both frames are valid
+        # フレームが有効か確認
         if not aligned_depth_frame or not color_frame:
             return None, None
 
+        # フレームをNumpy配列に変換
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
-
-        print(depth_image.shape)
 
         return color_image, depth_image
 
     def close(self):
+        """カメラストリームを無効にする"""
         print("closing camera")
-        if self.pipeline is not None:
-            self.pipeline.stop()
+        if self.is_running:
+            self.stop()
+        self.config.disable_all_streams()

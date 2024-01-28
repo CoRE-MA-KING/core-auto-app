@@ -14,8 +14,12 @@ class Application(ApplicationInterface):
 
         while True:
             color, depth = self._camera.get_images()
+            if color is None or depth is None:
+                continue
+
             self._presenter.show(color)
             command = self._presenter.get_ui_command()
+
             if command == Command.QUIT:
                 break
 
