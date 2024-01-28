@@ -1,24 +1,11 @@
 from core_auto_app.application.application import Application
-
-from core_auto_app.application.interfaces import Presenter
 from core_auto_app.infra.realsense_camera import RealsenseCamera
-
-
-class DummyPresenter(Presenter):
-    def show(self, image):
-        return
-
-    def get_ui_command(self):
-        pass
-
-    def close(self):
-        print("closing presenter")
-        return
+from core_auto_app.infra.cv_presenter import CvPresenter
 
 
 def main():
     camera = RealsenseCamera()
-    presenter = DummyPresenter()
+    presenter = CvPresenter()
 
     app = Application(camera, presenter)
 
