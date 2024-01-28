@@ -49,7 +49,6 @@ class RealsenseCamera(Camera):
         return color_image, depth_image
 
     def close(self):
+        print("closing camera")
         if self.pipeline is not None:
             self.pipeline.stop()
-            del self.pipeline
-        print("closing camera")

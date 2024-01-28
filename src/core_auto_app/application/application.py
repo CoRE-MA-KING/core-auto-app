@@ -1,8 +1,6 @@
 from core_auto_app.application.interfaces import ApplicationInterface, Camera, Presenter
 from core_auto_app.domain.messages import Command
 
-import numpy as np
-
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application."""
