@@ -12,7 +12,7 @@ readme = "README.md"
 requires-python = ">= 3.8"
 
 [project.scripts]
-hello = "core_auto_app:hello"
+core_auto_app = "core_auto_app.main:main"
 
 [build-system]
 requires = ["hatchling"]
