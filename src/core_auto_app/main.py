@@ -34,19 +34,9 @@ def run_application(record_dir: Optional[str]) -> None:
         record_path = None
         print("Directory not specified. Disable camera recording.")
 
-    camera = RealsenseCamera(record_path=record_path)
-    presenter = CvPresenter()
-
-    app = Application(camera, presenter)
-
-    try:
+    with RealsenseCamera(record_path) as camera, CvPresenter() as presenter:
+        app = Application(camera, presenter)
         app.spin()
-
-    except KeyboardInterrupt as e:
-        print(f"KeyboardInterrupt {e}")
-
-    finally:
-        app.close()
 
 
 def main():

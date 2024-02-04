@@ -13,13 +13,15 @@ class ApplicationInterface(ABC):
     def spin(self) -> None:
         pass
 
-    @abstractmethod
-    def close(self) -> None:
-        pass
-
 
 class Camera(ABC):
     """Interface for camera."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     @abstractmethod
     def start(self) -> None:
@@ -41,6 +43,12 @@ class Camera(ABC):
 
 class Presenter(ABC):
     """Interface for displaying results."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     @abstractmethod
     def show(self, image: np.ndarray) -> None:

@@ -22,7 +22,3 @@ class Application(ApplicationInterface):
 
             if command == Command.QUIT:
                 break
-
-    def close(self):
-        self._camera.close()
-        self._presenter.close()
