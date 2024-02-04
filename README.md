@@ -1,3 +1,98 @@
 # core-auto-app
 
-Describe your project here.
+The Championship of Robotics Engineers (CoRE) 向けの、ロボット自動制御を目的としたソフトウェアです。
+
+現時点では自動制御機能はなく、カメラ画像の取得と録画機能のみ実装されています。
+
+# Prerequisites
+
+## Jetson のセットアップ
+
+JetPack 5.1.2 を書き込んだ Jetson AGX Orin で動作を確認しています。
+以下の資料を参考に SDK Manager を PC にインストールし、Jetson をセットアップしてください。
+
+- [Getting Started with Jetson AGX Orin Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-agx-orin-devkit) の Optional Setup Flow
+- [NVIDIA SDK Manager Documentation](https://docs.nvidia.com/sdk-manager/)
+- [NVIDIA Jetson AGX Orinのセットアップからsdkmanagerでのインストールし直しまで](https://www.souichi.club/deep-learning/jetson-agx-orin/)
+
+# Installation
+
+## リポジトリのクローン
+
+以下のコマンドでこのリポジトリと必要なサブモジュールをクローンします。
+
+```sh
+$ git clone --recursive https://github.com/CoRE-MA-KING/core-auto-app.git
+$ cd core-auto-app
+```
+
+もし `--recursive` を付け忘れた場合は、以下のコマンドでサブモジュールをクローンしてください。
+
+```sh
+$ git submodule update --init --recursive
+```
+
+## 依存ライブラリのインストール
+
+ライブラリの管理には rye の利用を推奨します。
+[Installation](https://rye-up.com/guide/installation/) を参考に rye をインストールしてください。
+
+以下のコマンドで依存ライブラリをインストールしてください。
+
+```sh
+$ rye sync
+```
+
+なお、Jetson では加えて下記の pyrealsense2 と OpenCV のインストールが必要です。
+
+### pyrealsense2 のインストール
+
+librealsense2 は RealSense カメラの SDK、pyrealsense2 はその Python ラッパーです。
+JetPack 5 以降で利用するにはどちらも自前でビルドする必要があります。
+以下のコマンドでビルドしてインストールしてください。
+librealsense2 はルートに、pyrealsense2 は rye の仮想環境にインストールされます。
+
+```sh
+$ cd 3rdparty/librealsense
+$ mkdir build && cd build
+$ cmake .. \
+    -DBUILD_EXAMPLES=true \
+    -DCMAKE_BUILD_TYPE=release \
+    -DFORCE_RSUSB_BACKEND=false \
+    -DBUILD_WITH_CUDA=true \
+    -DBUILD_PYTHON_BINDINGS:bool=true \
+    -DPYTHON_INSTALL_DIR=$PWD/../../../.venv/lib/python3.8/site-packages
+$ make -j$(($(nproc)-1))
+$ sudo make install
+```
+
+### OpenCV のインストール
+
+Jetson では SDK Manager によって OpenCV がインストールされますが、そのままでは rye の仮想環境からは利用できません。
+以下のコマンドでリンクを作成してください。
+
+```sh
+$ cd ../../../
+$ ln -s /usr/lib/python3.8/dist-packages/cv2 .venv/lib/python3.8/site-packages/cv2
+```
+
+# Usage
+
+以下のコマンドで rye の仮想環境でアプリケーションを起動できます。`q` キーで終了します。
+
+```sh
+$ rye run core_auto_app
+```
+
+`--record_dir` オプションを指定すると、録画が保存されます。ファイル名は `camera_<起動日時>.bag` です。
+
+```sh
+$ rye run core_auto_app --record_dir=/mnt/ssd1
+```
+
+なお、以下のように直接 venv の仮想環境に入って起動することも可能です。
+
+```sh
+$ source .venv/bin/activate
+$ core_auto_app
+```
