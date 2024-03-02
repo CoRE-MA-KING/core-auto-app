@@ -26,11 +26,13 @@ class RobotStateId(Enum):
     Todo:
         状態を追加する
     """
+
     UNKNOWN = 0
 
 
 class RobotState(BaseModel):
     """マイコンと通信して取得したロボットの状態"""
+
     state_id: RobotStateId = RobotStateId.UNKNOWN
     pitch_deg: float = 0.0
     muzzle_velocity: float = 0.0

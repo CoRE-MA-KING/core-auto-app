@@ -1,4 +1,3 @@
-
 import os
 import pytest
 from serial import Serial
@@ -43,10 +42,15 @@ def test_virtual_serial_port(pty):
         assert received_data.decode("utf-8") == "hoge fuga\n"
 
 
-@pytest.mark.parametrize("buffer, expected_robot_state", [
-    (b"0,0.1,10.0\n", RobotState(
-        state_id=RobotStateId(0), pitch_deg=0.1, muzzle_velocity=10.0)),
-])
+@pytest.mark.parametrize(
+    "buffer, expected_robot_state",
+    [
+        (
+            b"0,0.1,10.0\n",
+            RobotState(state_id=RobotStateId(0), pitch_deg=0.1, muzzle_velocity=10.0),
+        ),
+    ],
+)
 def test_get_robot_state(pty, buffer, expected_robot_state):
     """ロボットの状態を取得するテスト"""
     port0, port1 = pty
