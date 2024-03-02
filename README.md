@@ -78,10 +78,25 @@ $ ln -s /usr/lib/python3.8/dist-packages/cv2 .venv/lib/python3.8/site-packages/c
 
 # Usage
 
-以下のコマンドで rye の仮想環境でアプリケーションを起動できます。`q` キーで終了します。
+以下のコマンドで rye の仮想環境でアプリケーションを起動できます。
+`--robot_port` オプションでマイコンとの通信に使用するシリアルポートを指定してください。
+起動後は `q` キーで終了します。
 
 ```sh
-$ rye run core_auto_app
+$ rye run core_auto_app --robot_port=/dev/ttyUSB0
+```
+
+マイコンと接続していない状態でアプリケーションを起動したい場合は、仮想シリアルポートを使用してください。
+
+```sh
+# socatをインストール
+$ sudo apt install socat
+
+# 仮想シリアルポートを作成
+$ socat -d -d pty,raw,echo=0,link=/tmp/vtty0 pty,raw,echo=0,link=/tmp/vtty1
+
+# 別のターミナルでアプリケーションを起動
+$ rye run core_auto_app --robot_port=/tmp/vtty0
 ```
 
 `--record_dir` オプションを指定すると、録画が保存されます。ファイル名は `camera_<起動日時>.bag` です。
