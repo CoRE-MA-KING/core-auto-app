@@ -59,6 +59,7 @@ class SerialRobotDriver(RobotDriver):
         return deepcopy(self._robot_state)
 
     def close(self):
+        print("closing robot driver")
         self._is_closed = True
         self._thread.join()
         self._serial.close()

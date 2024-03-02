@@ -8,6 +8,7 @@ dependencies = [
     "pyrealsense2 ; platform_machine != 'aarch64'",
     "pydantic>=2.5.3",
     "pyserial>=3.5",
+    "pillow>=10.2.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
