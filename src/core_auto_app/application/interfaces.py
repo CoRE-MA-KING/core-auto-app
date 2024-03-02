@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from core_auto_app.domain.messages import Command
+from core_auto_app.domain.messages import Command, RobotState
 
 
 class ApplicationInterface(ABC):
@@ -56,6 +56,24 @@ class Presenter(ABC):
 
     @abstractmethod
     def get_ui_command(self) -> Command:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+
+class RobotDriver(ABC):
+    """Interface for communicating with robot"""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    @abstractmethod
+    def get_robot_state(self) -> RobotState:
         pass
 
     @abstractmethod

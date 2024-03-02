@@ -11,4 +11,5 @@ annotated-types==0.6.0
 numpy==1.24.4
 pydantic==2.5.3
 pydantic-core==2.14.6
+pyserial==3.5
 typing-extensions==4.9.0
