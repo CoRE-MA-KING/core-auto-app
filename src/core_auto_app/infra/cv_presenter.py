@@ -44,8 +44,8 @@ class CvPresenter(Presenter):
         image = putText(
             image,
             text=f"状態 {state_str}, ピッチ {robot_state.pitch_deg}°, 初速 {robot_state.muzzle_velocity} m/s",
-            pos=(10, 30),
-            size=20,
+            pos=(20, 20),
+            size=40,
             color=(255, 255, 255),
         )
 
