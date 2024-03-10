@@ -111,3 +111,16 @@ $ rye run core_auto_app --record_dir=/mnt/ssd1
 $ source .venv/bin/activate
 $ core_auto_app
 ```
+
+# 自動起動の設定
+
+PCの起動時に、自動的にアプリケーションを実行するには、以下のようなファイルを作成してください。
+
+```sh
+$ vim ~/.config/autostart/core-auto-app.desktop
+[Desktop Entry]
+Name=run core auto app
+Exec=/home/nvidia/core_auto_app/scripts/autostart.sh
+Type=Application
+```
+
