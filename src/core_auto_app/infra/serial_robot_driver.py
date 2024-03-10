@@ -1,6 +1,6 @@
 from copy import deepcopy
 from threading import Lock, Thread
-from serial import Serial
+from serial import Serial, PARITY_EVEN
 
 from core_auto_app.application.interfaces import RobotDriver
 from core_auto_app.domain.messages import RobotStateId, RobotState
@@ -15,11 +15,18 @@ class SerialRobotDriver(RobotDriver):
         timeout: readのタイムアウト[秒]
     """
 
-    def __init__(self, port, baudrate, timeout=1.0):
+    def __init__(
+            self,
+            port,
+            baudrate=921600,
+            parity=PARITY_EVEN,
+            timeout=1.0,
+    ):
         # シリアルポートを開く
         self._serial = Serial(
             port=port,
             baudrate=baudrate,
+            parity=parity,
             timeout=timeout,
         )
 

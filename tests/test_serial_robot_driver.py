@@ -1,6 +1,6 @@
 import os
 import pytest
-from serial import Serial
+from serial import Serial, PARITY_EVEN
 import subprocess
 import time
 
@@ -57,7 +57,7 @@ def test_get_robot_state_id(pty, buffer, expected_robot_state_id):
     """ロボットの状態IDを取得するテスト"""
     port0, port1 = pty
 
-    with Serial(port0, 921600) as ser, SerialRobotDriver(port1, 921600) as driver:
+    with Serial(port0, 921600, parity=PARITY_EVEN) as ser, SerialRobotDriver(port1) as driver:
         ser.write(buffer)
         ser.flush()  # wait until all data is written
 
@@ -82,7 +82,7 @@ def test_get_robot_other_states(pty, buffer, expected_robot_state):
     """ロボットの状態IDを取得するテスト"""
     port0, port1 = pty
 
-    with Serial(port0, 921600) as ser, SerialRobotDriver(port1, 921600) as driver:
+    with Serial(port0, 921600, parity=PARITY_EVEN) as ser, SerialRobotDriver(port1) as driver:
         ser.write(buffer)
         ser.flush()  # wait until all data is written
 

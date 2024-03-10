@@ -44,7 +44,7 @@ def run_application(robot_port: str, record_dir: Optional[str]) -> None:
     with RealsenseCamera(
         record_path
     ) as camera, CvPresenter() as presenter, SerialRobotDriver(
-        robot_port, baudrate=9600
+        robot_port
     ) as robot_driver:
         app = Application(camera, presenter, robot_driver)
         app.spin()
