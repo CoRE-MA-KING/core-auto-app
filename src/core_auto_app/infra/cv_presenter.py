@@ -38,6 +38,11 @@ class CvPresenter(Presenter):
 
         STATE_MAP = {
             RobotStateId.UNKNOWN: "不明",
+            RobotStateId.INITIALIZING: "機体初期化",
+            RobotStateId.NORMAL: "通常動作",
+            RobotStateId.DEFEATED: "撃破",
+            RobotStateId.EMERGENCY: "非常停止状態",
+            RobotStateId.COMM_ERROR: "通信エラー",
         }
         state_str = STATE_MAP[robot_state.state_id]
 

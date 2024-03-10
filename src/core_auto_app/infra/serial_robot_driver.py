@@ -47,8 +47,11 @@ class SerialRobotDriver(RobotDriver):
             str_data = str_data.split(",")
             robot_state = RobotState(
                 state_id=RobotStateId(int(str_data[0])),
-                pitch_deg=float(str_data[1]),
-                muzzle_velocity=float(str_data[2]),
+                ready_to_fire=bool(int(str_data[1])),
+                pitch_deg=float(str_data[2])/10.0,  # 1/10deg
+                muzzle_velocity=float(str_data[3]),
+                record_video=bool(int(str_data[4])),
+                reboot_pc=bool(int(str_data[5])),
             )
 
             # 状態を更新

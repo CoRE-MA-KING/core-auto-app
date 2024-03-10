@@ -43,19 +43,46 @@ def test_virtual_serial_port(pty):
 
 
 @pytest.mark.parametrize(
-    "buffer, expected_robot_state",
+    "buffer, expected_robot_state_id",
     [
-        (
-            b"0,0.1,10.0\n",
-            RobotState(state_id=RobotStateId(0), pitch_deg=0.1, muzzle_velocity=10.0),
-        ),
+        (b"0,0,0,0,0,0,0,0\n", RobotStateId.UNKNOWN,),
+        (b"1,0,0,0,0,0,0,0\n", RobotStateId.INITIALIZING,),
+        (b"2,0,0,0,0,0,0,0\n", RobotStateId.NORMAL,),
+        (b"3,0,0,0,0,0,0,0\n", RobotStateId.DEFEATED,),
+        (b"4,0,0,0,0,0,0,0\n", RobotStateId.EMERGENCY,),
+        (b"5,0,0,0,0,0,0,0\n", RobotStateId.COMM_ERROR,),
     ],
 )
-def test_get_robot_state(pty, buffer, expected_robot_state):
-    """ロボットの状態を取得するテスト"""
+def test_get_robot_state_id(pty, buffer, expected_robot_state_id):
+    """ロボットの状態IDを取得するテスト"""
     port0, port1 = pty
 
-    with Serial(port0, 9600) as ser, SerialRobotDriver(port1, 9600) as driver:
+    with Serial(port0, 921600) as ser, SerialRobotDriver(port1, 921600) as driver:
+        ser.write(buffer)
+        ser.flush()  # wait until all data is written
+
+        # 別スレッドで状態を読み込むので更新されるまで待機
+        time.sleep(0.1)
+        robot_state = driver.get_robot_state()
+
+        assert robot_state.state_id == expected_robot_state_id
+
+
+@pytest.mark.parametrize(
+    "buffer, expected_robot_state",
+    [
+        (b"0,1,0,0,0,0,0,0\n", RobotState(ready_to_fire=True),),
+        (b"0,0,1,0,0,0,0,0\n", RobotState(pitch_deg=0.1),),
+        (b"0,0,0,1,0,0,0,0\n", RobotState(muzzle_velocity=1),),
+        (b"0,0,0,0,1,0,0,0\n", RobotState(record_video=1),),
+        (b"0,0,0,0,0,1,0,0\n", RobotState(reboot_pc=1),),
+    ],
+)
+def test_get_robot_other_states(pty, buffer, expected_robot_state):
+    """ロボットの状態IDを取得するテスト"""
+    port0, port1 = pty
+
+    with Serial(port0, 921600) as ser, SerialRobotDriver(port1, 921600) as driver:
         ser.write(buffer)
         ser.flush()  # wait until all data is written
 
@@ -64,3 +91,4 @@ def test_get_robot_state(pty, buffer, expected_robot_state):
         robot_state = driver.get_robot_state()
 
         assert robot_state == expected_robot_state
+
