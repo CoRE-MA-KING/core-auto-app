@@ -3,7 +3,7 @@ from typing import Optional
 import numpy as np
 import pyrealsense2 as rs
 
-from core_auto_app.application.interfaces import Camera
+from core_auto_app.application.interfaces import Camera, CameraFactory
 
 
 class RealsenseCamera(Camera):
@@ -84,3 +84,26 @@ class RealsenseCamera(Camera):
         if self.is_running:
             self.stop()
         self.config.disable_all_streams()
+
+
+class RealsenseCameraFactory(CameraFactory):
+    """RealSenseカメラの作成と破棄を担うクラス
+
+    Args:
+        record_path: 録画の保存先のファイルパス
+    """
+
+    def __init__(self, record_path: str):
+        self._record_path: str = record_path
+        self._camera: Camera = RealsenseCamera(None)
+
+    def create(self, record: bool) -> Camera:
+        print("creating camera")
+        tmp_record_path = self._record_path if record else None
+        self._camera.close()
+        self._camera = RealsenseCamera(tmp_record_path)
+        return self._camera
+
+    def close(self):
+        print("closing camera factory")
+        self._camera.close()

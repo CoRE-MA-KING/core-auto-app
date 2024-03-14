@@ -41,6 +41,24 @@ class Camera(ABC):
         pass
 
 
+class CameraFactory(ABC):
+    """Interface for camera factory."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    @abstractmethod
+    def create(self, record: bool) -> Camera:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+
 class Presenter(ABC):
     """Interface for displaying results."""
 

@@ -4,7 +4,7 @@ import os
 from typing import Optional
 
 from core_auto_app.application.application import Application
-from core_auto_app.infra.realsense_camera import RealsenseCamera
+from core_auto_app.infra.realsense_camera import RealsenseCameraFactory
 from core_auto_app.infra.cv_presenter import CvPresenter
 from core_auto_app.infra.serial_robot_driver import SerialRobotDriver
 
@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--record_dir",
-        default=None,
+        default="/mnt/ssd1",
         type=str,
         help="directory to record camera log",
     )
@@ -41,12 +41,12 @@ def run_application(robot_port: str, record_dir: Optional[str]) -> None:
         record_path = None
         print("Directory not specified. Disable camera recording.")
 
-    with RealsenseCamera(
+    with RealsenseCameraFactory(
         record_path
-    ) as camera, CvPresenter() as presenter, SerialRobotDriver(
+    ) as camera_factory, CvPresenter() as presenter, SerialRobotDriver(
         robot_port
     ) as robot_driver:
-        app = Application(camera, presenter, robot_driver)
+        app = Application(camera_factory, presenter, robot_driver)
         app.spin()
 
 

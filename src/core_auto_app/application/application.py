@@ -1,6 +1,6 @@
 from core_auto_app.application.interfaces import (
     ApplicationInterface,
-    Camera,
+    CameraFactory,
     Presenter,
     RobotDriver,
 )
@@ -10,10 +10,18 @@ from core_auto_app.domain.messages import Command
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application."""
 
-    def __init__(self, camera: Camera, presenter: Presenter, robot_driver: RobotDriver):
-        self._camera = camera
+    def __init__(
+        self,
+        camera_factory: CameraFactory,
+        presenter: Presenter,
+        robot_driver: RobotDriver,
+    ):
+        self._camera_factory = camera_factory
         self._presenter = presenter
         self._robot_driver = robot_driver
+
+        self._prev_record = False
+        self._camera = self._camera_factory.create(record=False)
 
     def spin(self):
         self._camera.start()
@@ -26,6 +34,11 @@ class Application(ApplicationInterface):
 
             # ロボットの状態取得
             robot_state = self._robot_driver.get_robot_state()
+
+            # 録画設定の更新
+            if robot_state.record_video != self._prev_record:
+                self._camera = self._camera_factory.create(robot_state.record_video)
+                self._prev_record = robot_state.record_video
 
             # 描画
             self._presenter.show(color, robot_state)

@@ -99,7 +99,7 @@ $ socat -d -d pty,raw,echo=0,link=/tmp/vtty0 pty,raw,echo=0,link=/tmp/vtty1
 $ rye run core_auto_app --robot_port=/tmp/vtty0
 ```
 
-`--record_dir` オプションを指定すると、録画が保存されます。ファイル名は `camera_<起動日時>.bag` です。
+`--record_dir` オプションで録画の保存先のディレクトリを指定してください。ファイル名は `camera_<起動日時>.bag` になります。
 
 ```sh
 $ rye run core_auto_app --record_dir=/mnt/ssd1
