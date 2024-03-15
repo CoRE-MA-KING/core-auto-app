@@ -6,7 +6,7 @@ from core_auto_app.application.interfaces import Presenter
 from core_auto_app.domain.messages import Command, RobotStateId, RobotState
 
 
-def putText(img, text, pos, size, color):
+def put_text(img, text, pos, size, color):
     """日本語フォントを画面に描画する関数"""
     font = ImageFont.truetype(
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
@@ -16,6 +16,14 @@ def putText(img, text, pos, size, color):
     draw = ImageDraw.Draw(img_pil)
     draw.text(pos, text, fill=color, font=font)
     return np.array(img_pil)
+
+
+def put_outline_text(img, text, pos, size, color, shadow_color="black"):
+    """フチ付き文字を表示する関数"""
+    for vec in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+        new_pos = (pos[0] + vec[0], pos[1] + vec[1])
+        img = put_text(img, text, new_pos, size, shadow_color)
+    return put_text(img, text, pos, size, color)
 
 
 class CvPresenter(Presenter):
@@ -46,7 +54,7 @@ class CvPresenter(Presenter):
         }
         state_str = STATE_MAP[robot_state.state_id]
 
-        image = putText(
+        image = put_outline_text(
             image,
             text=f"状態 {state_str}, ピッチ {robot_state.pitch_deg}°, 初速 {robot_state.muzzle_velocity} m/s",
             pos=(20, 20),
