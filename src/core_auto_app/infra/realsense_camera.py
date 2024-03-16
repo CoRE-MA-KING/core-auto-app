@@ -96,12 +96,14 @@ class RealsenseCameraFactory(CameraFactory):
     def __init__(self, record_path: str):
         self._record_path: str = record_path
         self._camera: Camera = RealsenseCamera(None)
+        self._camera.start()
 
     def create(self, record: bool) -> Camera:
         print("creating camera")
         tmp_record_path = self._record_path if record else None
         self._camera.close()
         self._camera = RealsenseCamera(tmp_record_path)
+        self._camera.start()
         return self._camera
 
     def close(self):
