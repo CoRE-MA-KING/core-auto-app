@@ -10,5 +10,5 @@ source .venv/bin/activate
 # core_auto_app --robot_port=/tmp/vtty0
 
 # 仮想シリアルポートを使用しないアプリケーションの起動
-core_auto_app --robot_port=/tmp/ttyUSB0
+core_auto_app --robot_port=/dev/ttyUSB0
 
