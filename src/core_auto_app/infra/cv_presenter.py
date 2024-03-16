@@ -57,13 +57,13 @@ class CvPresenter(Presenter):
         image = put_outline_text(
             image,
             text=(
-                f"状態 {state_str}, "
-                f"ピッチ {robot_state.pitch_deg:.1f}°, "
-                f"初速 {robot_state.muzzle_velocity:.1f} m/s, "
+                f"状態 {state_str} "
+                f"ピッチ {robot_state.pitch_deg:.1f}° "
+                f"初速 {robot_state.muzzle_velocity:.1f} m/s "
                 f"残弾数 {robot_state.num_disks}"
             ),
-            pos=(20, 20),
-            size=40,
+            pos=(560, 660),
+            size=30,
             color=(255, 255, 255),
         )
 
