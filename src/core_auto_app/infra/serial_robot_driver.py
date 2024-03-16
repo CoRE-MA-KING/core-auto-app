@@ -18,7 +18,7 @@ class SerialRobotDriver(RobotDriver):
     def __init__(
         self,
         port,
-        #baudrate=921600,
+        # baudrate=921600,
         baudrate=115200,
         parity=PARITY_NONE,
         timeout=1.0,
@@ -67,6 +67,7 @@ class SerialRobotDriver(RobotDriver):
                     record_video=bool(int(str_data[4])),
                     reboot_pc=bool(int(str_data[5])),
                     num_disks=int(str_data[6]),
+                    video_id=int(str_data[7]),
                 )
             except ValueError as err:
                 print(err)

@@ -39,5 +39,6 @@ class RobotState(BaseModel):
     pitch_deg: float = 0  # deg
     muzzle_velocity: float = 0  # mm/s
     record_video: bool = False
-    reboot_pc: bool = False
+    reboot_pc: bool = False  # 未使用
     num_disks: int = 0
+    video_id: int = 0  # 表示するカメラ 0 RealSense, 1 前方, 2 後方

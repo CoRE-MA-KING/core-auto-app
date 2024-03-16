@@ -15,7 +15,7 @@ class ApplicationInterface(ABC):
 
 
 class Camera(ABC):
-    """Interface for camera."""
+    """Interface for RGB-D camera."""
 
     def __enter__(self):
         return self
@@ -34,6 +34,33 @@ class Camera(ABC):
     @abstractmethod
     def get_images(self) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
         """Get both color and depth images."""
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+
+class ColorCamera(ABC):
+    """Interface for color camera."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    @abstractmethod
+    def start(self) -> None:
+        pass
+
+    @abstractmethod
+    def stop(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_image(self) -> Optional[np.ndarray]:
+        """Get color image."""
         pass
 
     @abstractmethod

@@ -1,5 +1,6 @@
 from core_auto_app.application.interfaces import (
     ApplicationInterface,
+    ColorCamera,
     CameraFactory,
     Presenter,
     RobotDriver,
@@ -13,10 +14,12 @@ class Application(ApplicationInterface):
     def __init__(
         self,
         camera_factory: CameraFactory,
+        a_camera: ColorCamera,
         presenter: Presenter,
         robot_driver: RobotDriver,
     ):
         self._camera_factory = camera_factory
+        self._a_camera = a_camera
         self._presenter = presenter
         self._robot_driver = robot_driver
 
@@ -24,14 +27,9 @@ class Application(ApplicationInterface):
         self._camera = self._camera_factory.create(record=False)
 
     def spin(self):
-        self._camera.start()
+        self._a_camera.start()
 
         while True:
-            # カメラ画像取得
-            color, depth = self._camera.get_images()
-            if color is None or depth is None:
-                continue
-
             # ロボットの状態取得
             robot_state = self._robot_driver.get_robot_state()
 
@@ -39,6 +37,16 @@ class Application(ApplicationInterface):
             if robot_state.record_video != self._prev_record:
                 self._camera = self._camera_factory.create(robot_state.record_video)
                 self._prev_record = robot_state.record_video
+
+            # カメラ画像取得
+            if robot_state.video_id == 0:
+                color, depth = self._camera.get_images()
+            elif robot_state.video_id == 1:
+                color = self._a_camera.get_image()
+            elif robot_state.video_id == 2:
+                raise NotImplementedError()
+            if color is None:
+                continue
 
             # 描画
             self._presenter.show(color, robot_state)

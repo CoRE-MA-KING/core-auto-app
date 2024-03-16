@@ -80,7 +80,7 @@ class RealsenseCamera(Camera):
 
     def close(self):
         """カメラストリームを無効にする"""
-        print("closing camera")
+        print("closing realsense camera")
         if self.is_running:
             self.stop()
         self.config.disable_all_streams()
@@ -99,7 +99,7 @@ class RealsenseCameraFactory(CameraFactory):
         self._camera.start()
 
     def create(self, record: bool) -> Camera:
-        print("creating camera")
+        print("creating realsense camera")
         tmp_record_path = self._record_path if record else None
         self._camera.close()
         self._camera = RealsenseCamera(tmp_record_path)
