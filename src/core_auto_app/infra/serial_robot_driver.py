@@ -1,6 +1,6 @@
 from copy import deepcopy
 from threading import Lock, Thread
-from serial import Serial, PARITY_EVEN
+from serial import Serial, PARITY_NONE
 
 from core_auto_app.application.interfaces import RobotDriver
 from core_auto_app.domain.messages import RobotStateId, RobotState
@@ -18,8 +18,9 @@ class SerialRobotDriver(RobotDriver):
     def __init__(
         self,
         port,
-        baudrate=921600,
-        parity=PARITY_EVEN,
+        #baudrate=921600,
+        baudrate=115200,
+        parity=PARITY_NONE,
         timeout=1.0,
     ):
         # シリアルポートを開く
@@ -43,24 +44,33 @@ class SerialRobotDriver(RobotDriver):
         while not self._is_closed:
             # 改行コード"\n"まで読む
             buffer = self._serial.readline()
+            print(buffer)
 
             # タイムアウトが発生した場合、改行コード"\n"が含まれない
-            str_data = buffer.decode("utf-8")
+            try:
+                str_data = buffer.decode("ascii")
+            except UnicodeDecodeError as err:
+                print(err)
+                continue
             if "\n" not in str_data:
                 continue
 
             # バッファーをパースする
-            str_data = str_data.replace("\n", "")
-            str_data = str_data.split(",")
-            robot_state = RobotState(
-                state_id=RobotStateId(int(str_data[0])),
-                ready_to_fire=bool(int(str_data[1])),
-                pitch_deg=float(str_data[2]) / 10.0,  # 1/10deg
-                muzzle_velocity=float(str_data[3]),
-                record_video=bool(int(str_data[4])),
-                reboot_pc=bool(int(str_data[5])),
-                num_disks=int(str_data[6]),
-            )
+            try:
+                str_data = str_data.replace("\n", "")
+                str_data = str_data.split(",")
+                robot_state = RobotState(
+                    state_id=RobotStateId(int(str_data[0])),
+                    ready_to_fire=bool(int(str_data[1])),
+                    pitch_deg=float(str_data[2]) / 10.0,  # 1/10deg
+                    muzzle_velocity=float(str_data[3]),
+                    record_video=bool(int(str_data[4])),
+                    reboot_pc=bool(int(str_data[5])),
+                    num_disks=int(str_data[6]),
+                )
+            except ValueError as err:
+                print(err)
+                continue
 
             # 状態を更新
             self._robot_state = robot_state

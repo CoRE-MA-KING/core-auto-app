@@ -39,7 +39,7 @@ def test_virtual_serial_port(pty):
     with Serial(port0, 9600) as ser0, Serial(port1, 9600) as ser1:
         ser0.write(b"hoge fuga\n")
         received_data = ser1.readline()  # 改行コードまで読む
-        assert received_data.decode("utf-8") == "hoge fuga\n"
+        assert received_data.decode("ascii") == "hoge fuga\n"
 
 
 @pytest.mark.parametrize(
