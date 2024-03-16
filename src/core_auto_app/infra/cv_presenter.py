@@ -46,17 +46,22 @@ class CvPresenter(Presenter):
 
         STATE_MAP = {
             RobotStateId.UNKNOWN: "不明",
-            RobotStateId.INITIALIZING: "機体初期化",
+            RobotStateId.INITIALIZING: "初期化",
             RobotStateId.NORMAL: "通常動作",
             RobotStateId.DEFEATED: "撃破",
-            RobotStateId.EMERGENCY: "非常停止状態",
+            RobotStateId.EMERGENCY: "非常停止",
             RobotStateId.COMM_ERROR: "通信エラー",
         }
         state_str = STATE_MAP[robot_state.state_id]
 
         image = put_outline_text(
             image,
-            text=f"状態 {state_str}, ピッチ {robot_state.pitch_deg}°, 初速 {robot_state.muzzle_velocity} m/s",
+            text=(
+                f"状態 {state_str}, "
+                f"ピッチ {robot_state.pitch_deg:.1f}°, "
+                f"初速 {robot_state.muzzle_velocity:.1f} m/s, "
+                f"残弾数 {robot_state.num_disks}"
+            ),
             pos=(20, 20),
             size=40,
             color=(255, 255, 255),

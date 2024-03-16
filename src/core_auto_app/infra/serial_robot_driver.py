@@ -59,6 +59,7 @@ class SerialRobotDriver(RobotDriver):
                 muzzle_velocity=float(str_data[3]),
                 record_video=bool(int(str_data[4])),
                 reboot_pc=bool(int(str_data[5])),
+                num_disks=int(str_data[6]),
             )
 
             # 状態を更新

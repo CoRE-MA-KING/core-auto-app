@@ -40,3 +40,4 @@ class RobotState(BaseModel):
     muzzle_velocity: float = 0  # mm/s
     record_video: bool = False
     reboot_pc: bool = False
+    num_disks: int = 0
