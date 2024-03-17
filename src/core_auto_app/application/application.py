@@ -15,11 +15,13 @@ class Application(ApplicationInterface):
         self,
         camera_factory: CameraFactory,
         a_camera: ColorCamera,
+        b_camera: ColorCamera,
         presenter: Presenter,
         robot_driver: RobotDriver,
     ):
         self._camera_factory = camera_factory
         self._a_camera = a_camera
+        self._b_camera = b_camera
         self._presenter = presenter
         self._robot_driver = robot_driver
 
@@ -28,6 +30,7 @@ class Application(ApplicationInterface):
 
     def spin(self):
         self._a_camera.start()
+        self._b_camera.start()
 
         while True:
             # ロボットの状態取得
@@ -44,7 +47,7 @@ class Application(ApplicationInterface):
             elif robot_state.video_id == 1:
                 color = self._a_camera.get_image()
             elif robot_state.video_id == 2:
-                raise NotImplementedError()
+                color = self._b_camera.get_image()
             if color is None:
                 continue
 

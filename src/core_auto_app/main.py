@@ -30,11 +30,18 @@ def parse_args() -> argparse.Namespace:
         default=6,
         help="number or filename of camera A",
     )
+    parser.add_argument(
+        "--b_camera_name",
+        default=8,
+        help="number or filename of camera B",
+    )
     args = parser.parse_args()
     return args
 
 
-def run_application(robot_port: str, record_dir: Optional[str], a_camera_name) -> None:
+def run_application(
+    robot_port: str, record_dir: Optional[str], a_camera_name, b_camera_name
+) -> None:
     """アプリケーションを実行する"""
     # 引数と日時から録画の保存先のファイルパスを決定
     if record_dir:
@@ -49,10 +56,12 @@ def run_application(robot_port: str, record_dir: Optional[str], a_camera_name) -
 
     with RealsenseCameraFactory(record_path) as camera_factory, UsbCamera(
         a_camera_name
-    ) as a_camera, CvPresenter() as presenter, SerialRobotDriver(
+    ) as a_camera, UsbCamera(
+        b_camera_name
+    ) as b_camera, CvPresenter() as presenter, SerialRobotDriver(
         robot_port
     ) as robot_driver:
-        app = Application(camera_factory, a_camera, presenter, robot_driver)
+        app = Application(camera_factory, a_camera, b_camera, presenter, robot_driver)
         app.spin()
 
 
@@ -62,6 +71,7 @@ def main():
         record_dir=args.record_dir,
         robot_port=args.robot_port,
         a_camera_name=args.a_camera_name,
+        b_camera_name=args.b_camera_name,
     )
 
 
