@@ -63,7 +63,7 @@ class SerialRobotDriver(RobotDriver):
                     state_id=RobotStateId(int(str_data[0])),
                     ready_to_fire=bool(int(str_data[1])),
                     pitch_deg=float(str_data[2]) / 10.0,  # 1/10deg
-                    muzzle_velocity=float(str_data[3]),
+                    muzzle_velocity=float(str_data[3]) / 1000,  # mm/s
                     record_video=bool(int(str_data[4])),
                     reboot_pc=bool(int(str_data[5])),
                     num_disks=int(str_data[6]),
