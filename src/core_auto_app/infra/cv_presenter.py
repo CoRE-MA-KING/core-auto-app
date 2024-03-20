@@ -28,6 +28,26 @@ def put_outline_text(img, text, pos, size, color, shadow_color="black"):
     return put_text(img, text, pos, size, color)
 
 
+def draw_crosshair(img, pos, color, shadow_color=None):
+    """十字マークを表示する関数"""
+    if not shadow_color:
+        shadow_color = (0, 0, 0)
+
+    img = cv2.line(
+        img, (pos[0], pos[1] - 12), (pos[0], pos[1] + 12), shadow_color, thickness=4
+    )
+    img = cv2.line(
+        img, (pos[0] - 12, pos[1]), (pos[0] + 12, pos[1]), shadow_color, thickness=4
+    )
+    img = cv2.line(
+        img, (pos[0], pos[1] - 10), (pos[0], pos[1] + 10), color, thickness=2
+    )
+    img = cv2.line(
+        img, (pos[0] - 10, pos[1]), (pos[0] + 10, pos[1]), color, thickness=2
+    )
+    return img
+
+
 class CvPresenter(Presenter):
     def __init__(self):
         # ユーザーがサイズ変更可能な一般的なウィンドウを作成
@@ -60,6 +80,7 @@ class CvPresenter(Presenter):
         if image is None:
             image = np.zeros((720, 1280, 3), dtype=np.uint8)
 
+        # 文字を表示
         image = put_outline_text(
             image,
             text=(
@@ -71,6 +92,11 @@ class CvPresenter(Presenter):
             pos=(560, 660),
             size=30,
             color=(255, 255, 255),
+        )
+
+        # 十字を表示
+        image = draw_crosshair(
+            image, (image.shape[1] // 2, image.shape[0] // 2), (255, 255, 255)
         )
 
         # OpenCVの仕様上、cv2.waitKey()が呼ばれないと表示されない
