@@ -41,8 +41,12 @@ class RealsenseCamera(Camera):
 
     def start(self):
         """カメラストリームを開始させる"""
-        self.pipeline.start(self.config)
-        self._is_running = True
+        try:
+            self.pipeline.start(self.config)
+            self._is_running = True
+        except RuntimeError as err:
+            print(err)
+            self._is_running = False
 
     def stop(self):
         """カメラストリームを停止させる"""
@@ -56,7 +60,8 @@ class RealsenseCamera(Camera):
             color_image: カラー画像
             depth_image: デプス画像
         """
-        assert self.is_running, "Camera not running. Please call start() first."
+        if not self.is_running:
+            return None, None
 
         # 新しいフレームを取得
         frames = self.pipeline.wait_for_frames()
@@ -81,7 +86,7 @@ class RealsenseCamera(Camera):
     def close(self):
         """カメラストリームを無効にする"""
         print("closing realsense camera")
-        if self.is_running:
+        if self._is_running:
             self.stop()
         self.config.disable_all_streams()
 

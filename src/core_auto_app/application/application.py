@@ -48,8 +48,10 @@ class Application(ApplicationInterface):
                 color = self._a_camera.get_image()
             elif robot_state.video_id == 2:
                 color = self._b_camera.get_image()
+
+            # 指定されたカメラ画像を取得できなかった場合、カメラAの画像を再取得
             if color is None:
-                continue
+                color = self._a_camera.get_image()
 
             # 描画
             self._presenter.show(color, robot_state)

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import cv2
 import numpy as np
 from PIL import ImageFont, ImageDraw, Image
@@ -33,7 +35,7 @@ class CvPresenter(Presenter):
         # ウィンドウをフルスクリーンに設定
         cv2.setWindowProperty("display", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-    def show(self, image: np.array, robot_state: RobotState) -> None:
+    def show(self, image: Optional[np.array], robot_state: RobotState) -> None:
         """画像をウィンドウに表示する
 
         Args:
@@ -53,6 +55,10 @@ class CvPresenter(Presenter):
             RobotStateId.COMM_ERROR: "通信エラー",
         }
         state_str = STATE_MAP[robot_state.state_id]
+
+        # 入力画像がない場合、黒画像を表示する
+        if image is None:
+            image = np.zeros((720, 1280, 3), dtype=np.uint8)
 
         image = put_outline_text(
             image,
