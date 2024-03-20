@@ -1,6 +1,9 @@
 from copy import deepcopy
-from threading import Lock, Thread
-from serial import Serial, PARITY_NONE
+from threading import Thread
+from time import sleep
+from typing import Optional
+
+import serial
 
 from core_auto_app.application.interfaces import RobotDriver
 from core_auto_app.domain.messages import RobotStateId, RobotState
@@ -20,16 +23,16 @@ class SerialRobotDriver(RobotDriver):
         port,
         # baudrate=921600,
         baudrate=115200,
-        parity=PARITY_NONE,
+        parity=serial.PARITY_NONE,
         timeout=1.0,
     ):
         # シリアルポートを開く
-        self._serial = Serial(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            timeout=timeout,
-        )
+        self._port = port
+        self._baudrate = baudrate
+        self._parity = parity
+        self._timeout = timeout
+        self._port: Optional[serial.Serial]
+        self._open_serial_port()
 
         # デフォルト状態をセット
         self._robot_state = RobotState()
@@ -39,9 +42,31 @@ class SerialRobotDriver(RobotDriver):
         self._thread = Thread(target=self._update_robot_state)
         self._thread.start()
 
+    def _open_serial_port(self) -> None:
+        """シリアルポートを開く
+
+        開けなかった場合はNoneをセットする
+        """
+        try:
+            self._serial = serial.Serial(
+                port=self._port,
+                baudrate=self._baudrate,
+                parity=self._parity,
+                timeout=self._timeout,
+            )
+        except serial.serialutil.SerialException as err:
+            print(err)
+            self._serial = None
+
     def _update_robot_state(self) -> None:
         """ロボットの状態を取得してメンバ変数を更新する"""
         while not self._is_closed:
+            # シリアルポートが開いていなければ1秒待って開く
+            if not self._serial:
+                sleep(1)
+                self._open_serial_port()
+                continue
+
             # 改行コード"\n"まで読む
             buffer = self._serial.readline()
             print(buffer)
@@ -84,4 +109,5 @@ class SerialRobotDriver(RobotDriver):
         print("closing robot driver")
         self._is_closed = True
         self._thread.join()
-        self._serial.close()
+        if self._serial:
+            self._serial.close()
