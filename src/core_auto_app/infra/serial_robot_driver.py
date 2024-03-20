@@ -68,8 +68,14 @@ class SerialRobotDriver(RobotDriver):
                 continue
 
             # 改行コード"\n"まで読む
-            buffer = self._serial.readline()
-            print(buffer)
+            try:
+                buffer = self._serial.readline()
+                print(buffer)
+            except Exception as err:
+                print(err)
+                self._serial.close()
+                self._serial = None
+                continue
 
             # タイムアウトが発生した場合、改行コード"\n"が含まれない
             try:
