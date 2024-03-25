@@ -110,6 +110,11 @@ class CvPresenter(Presenter):
 
         return Command.NONE
 
+    def recreate_window(self):
+        cv2.destroyWindow("display")
+        cv2.namedWindow("display", cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty("display", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
     def close(self) -> None:
         print("closing presenter")
         cv2.destroyAllWindows()

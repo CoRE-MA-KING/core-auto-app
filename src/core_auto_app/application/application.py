@@ -41,6 +41,9 @@ class Application(ApplicationInterface):
                 self._camera = self._camera_factory.create(robot_state.record_video)
                 self._prev_record = robot_state.record_video
 
+                # NOTE: フルスクリーンがバグったときのためウィンドウを作り直す
+                self._presenter.recreate_window()
+
             # カメラ画像取得
             if robot_state.video_id == 0:
                 color, depth = self._camera.get_images()
