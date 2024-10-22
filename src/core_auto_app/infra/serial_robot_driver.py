@@ -21,25 +21,23 @@ class SerialRobotDriver(RobotDriver):
     def __init__(
         self,
         port,
-        # baudrate=921600,
         baudrate=115200,
-        parity=serial.PARITY_EVEN,
+        parity=serial.PARITY_NONE,
+        # parity=serial.PARITY_EVEN,
+        stopbits=serial.STOPBITS_ONE,
         timeout=1.0,
     ):
         # シリアルポートを開く
         self._port = port
         self._baudrate = baudrate
         self._parity = parity
+        self._stopbits = stopbits
         self._timeout = timeout
         self._port: Optional[serial.Serial]
         self._open_serial_port()
 
         # デフォルト状態をセット
         self._robot_state = RobotState()
-
-        # フラグの初期化（）
-        self._is_recording = False
-        self._auto_aim = False
 
         # スレッド開始
         self._is_closed = False
@@ -55,6 +53,7 @@ class SerialRobotDriver(RobotDriver):
             self._serial = serial.Serial(
                 port=self._port,
                 baudrate=self._baudrate,
+                stopbits=self._stopbits,
                 parity=self._parity,
                 timeout=self._timeout,
             )
@@ -103,10 +102,10 @@ class SerialRobotDriver(RobotDriver):
                     reloaded_right_disks=int(str_data[4]),  # 枚
                     video_id=int(str_data[5]),  # カメラID
                     # "str_data[6]"は複数のflagをまとめたバイト
-                    auto_aim=bool((str_data[6] >> 2) & 0b00000001),  # 自動照準フラグ
-                    record_video=bool((str_data[6] >> 1) & 0b00000001),  # 録画フラグ
-                    ready_to_fire=bool((str_data[6] >> 0) & 0b00000001),  # 射出可否フラグ
-                    reserved=bool(str_data[7])  # 未使用
+                    auto_aim=bool((int(str_data[6]) >> 2) & 0b00000001),  # 自動照準フラグ
+                    record_video=bool((int(str_data[6]) >> 1) & 0b00000001),  # 録画フラグ
+                    ready_to_fire=bool((int(str_data[6]) >> 0) & 0b00000001),  # 射出可否フラグ
+                    reserved=int(str_data[7])  # 未使用
                 )
             except ValueError as err:
                 print(err)

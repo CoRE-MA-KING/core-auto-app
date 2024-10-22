@@ -44,4 +44,4 @@ class RobotState(BaseModel):
     auto_aim: bool = False
     record_video: bool = False
     ready_to_fire: bool = False
-    reserved: bool = False  # 未使用
+    reserved: int = 0  # 未使用
