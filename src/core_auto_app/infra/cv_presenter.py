@@ -86,8 +86,9 @@ class CvPresenter(Presenter):
             text=(
                 f"状態 {state_str} "
                 f"ピッチ {robot_state.pitch_deg:.1f}° "
-                f"初速 {robot_state.muzzle_velocity:.1f} m/s "
-                f"残弾数 {robot_state.num_disks}"
+                f"射出速度 {robot_state.muzzle_velocity:.1f} m/s "
+                f"左残弾数 {robot_state.reloaded_left_disks}"
+                f"右残弾数 {robot_state.reloaded_right_disks}"
             ),
             pos=(560, 660),
             size=30,
