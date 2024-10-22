@@ -37,6 +37,10 @@ class SerialRobotDriver(RobotDriver):
         # デフォルト状態をセット
         self._robot_state = RobotState()
 
+        # フラグの初期化（）
+        self._is_recording = False
+        self._auto_aim = False
+
         # スレッド開始
         self._is_closed = False
         self._thread = Thread(target=self._update_robot_state)
@@ -98,8 +102,11 @@ class SerialRobotDriver(RobotDriver):
                     reloaded_rleft_disks=int(str_data[3]),  # 枚
                     reloaded_right_disks=int(str_data[4]),  # 枚
                     video_id=int(str_data[5]),  # カメラID
-                    flags=int(str_data[6]),
-                    reserved=bool(str_data[7])
+                    # "str_data[6]"は複数のflagをまとめたバイト
+                    auto_aim=bool((str_data[6] >> 2) & 0b00000001),  # 自動照準フラグ
+                    record_video=bool((str_data[6] >> 1) & 0b00000001),  # 録画フラグ
+                    ready_to_fire=bool((str_data[6] >> 0) & 0b00000001),  # 射出可否フラグ
+                    reserved=bool(str_data[7])  # 未使用
                 )
             except ValueError as err:
                 print(err)
