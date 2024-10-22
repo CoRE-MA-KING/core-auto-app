@@ -6,7 +6,6 @@ from core_auto_app.application.interfaces import (
     RobotDriver,
 )
 from core_auto_app.domain.messages import Command
-import cv2
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application."""
@@ -31,24 +30,13 @@ class Application(ApplicationInterface):
     def spin(self):
         self._a_camera.start()
         self._b_camera.start()
-        dummy_record= False
         while True:
             # ロボットの状態取得
             robot_state = self._robot_driver.get_robot_state()
-
-            if cv2.waitKey(1) & 0xFF == ord('y'):
-                dummy_record = True
-            if cv2.waitKey(1) & 0xFF == ord('n'):
-                dummy_record = False
-
             # 録画設定の更新
-            # if robot_state.record_video != self._prev_record:
-            #     self._camera = self._camera_factory.create(robot_state.record_video)
-            #     self._prev_record = robot_state.record_video
-            if dummy_record != self._prev_record:
-                self._camera = self._camera_factory.create(dummy_record)
-                self._prev_record = dummy_record
-
+            if robot_state.record_video != self._prev_record:
+                self._camera = self._camera_factory.create(robot_state.record_video)
+                self._prev_record = robot_state.record_video
                 # NOTE: フルスクリーンがバグったときのためウィンドウを作り直す
                 self._presenter.recreate_window()
 
