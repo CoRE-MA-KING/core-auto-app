@@ -68,6 +68,7 @@ class SerialRobotDriver(RobotDriver):
                 continue
 
             # 改行コード"\n"まで読む
+            # ここでパリティチェックの処理を追加して良さそう
             try:
                 buffer = self._serial.readline()
                 print(buffer)
@@ -94,7 +95,7 @@ class SerialRobotDriver(RobotDriver):
                     state_id=RobotStateId(int(str_data[0])),
                     pitch_deg=float(str_data[1]) / 10.0,  # 1/10deg
                     muzzle_velocity=float(str_data[2]) / 1000,  # m/s
-                    reloaded_right_disks=int(str_data[3]),  # 枚
+                    reloaded_rleft_disks=int(str_data[3]),  # 枚
                     reloaded_right_disks=int(str_data[4]),  # 枚
                     video_id=int(str_data[5]),  # カメラID
                     flags=int(str_data[6]),

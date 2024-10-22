@@ -70,7 +70,7 @@ class CvPresenter(Presenter):
             RobotStateId.UNKNOWN: "不明",
             RobotStateId.INITIALIZING: "初期化",
             RobotStateId.NORMAL: "通常動作",
-            RobotStateId.DEFEATED: "撃破",
+            RobotStateId.DEFEATED: "被撃破",
             RobotStateId.EMERGENCY: "非常停止",
             RobotStateId.COMM_ERROR: "通信エラー",
         }
