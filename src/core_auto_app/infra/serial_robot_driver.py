@@ -23,7 +23,7 @@ class SerialRobotDriver(RobotDriver):
         port,
         # baudrate=921600,
         baudrate=115200,
-        parity=serial.PARITY_NONE,
+        parity=serial.PARITY_EVEN,
         timeout=1.0,
     ):
         # シリアルポートを開く
@@ -92,13 +92,13 @@ class SerialRobotDriver(RobotDriver):
                 str_data = str_data.split(",")
                 robot_state = RobotState(
                     state_id=RobotStateId(int(str_data[0])),
-                    ready_to_fire=bool(int(str_data[1])),
-                    pitch_deg=float(str_data[2]) / 10.0,  # 1/10deg
-                    muzzle_velocity=float(str_data[3]) / 1000,  # mm/s
-                    record_video=bool(int(str_data[4])),
-                    reboot_pc=bool(int(str_data[5])),
-                    num_disks=int(str_data[6]),
-                    video_id=int(str_data[7]),
+                    pitch_deg=float(str_data[1]) / 10.0,  # 1/10deg
+                    muzzle_velocity=float(str_data[2]) / 1000,  # m/s
+                    reloaded_right_disks=int(str_data[3]),  # 枚
+                    reloaded_right_disks=int(str_data[4]),  # 枚
+                    video_id=int(str_data[5]),  # カメラID
+                    flags=int(str_data[6]),
+                    reserved=bool(str_data[7])
                 )
             except ValueError as err:
                 print(err)
