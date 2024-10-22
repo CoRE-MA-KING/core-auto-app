@@ -112,5 +112,5 @@ class RealsenseCameraFactory(CameraFactory):
         return self._camera
 
     def close(self):
-        print("closing camera factory")
+        print("closing realsense camera factory")
         self._camera.close()
