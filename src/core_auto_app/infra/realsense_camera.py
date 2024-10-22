@@ -1,3 +1,6 @@
+import datetime
+import os
+
 from typing import Optional
 
 import numpy as np
@@ -98,17 +101,26 @@ class RealsenseCameraFactory(CameraFactory):
     """RealSenseカメラの作成と破棄を担うクラス
 
     Args:
-        record_path: 録画の保存先のファイルパス
+        record_dir: 録画の保存先ディレクトリ
     """
 
-    def __init__(self, record_path: str):
-        self._record_path: str = record_path
+    def __init__(self, record_dir: str):
+        self._record_dir: str = record_dir
         self._camera: Camera = RealsenseCamera(None)
         self._camera.start()
 
-    def create(self, record: bool) -> Camera:
+    def create(self, record_flag: bool) -> Camera:
         print("creating realsense camera factory")
-        tmp_record_path = self._record_path if record else None
+        if record_flag:
+            # 引数と日時から録画の保存先のファイルパスを決定
+            dt_now = datetime.datetime.now()
+            tmp_record_path = os.path.join(
+                self._record_dir, dt_now.strftime("camera_%Y%m%d_%H%M%S.bag")
+            )
+            print(f"Camera record path: {tmp_record_path}")
+        else:
+            tmp_record_path = None
+            print("Directory not specified. Disable camera recording.")
         self._camera.close()
         self._camera = RealsenseCamera(tmp_record_path)
         self._camera.start()

@@ -1,6 +1,6 @@
 import argparse
-import datetime
-import os
+# import datetime
+# import os
 from typing import Optional
 
 from core_auto_app.application.application import Application
@@ -21,7 +21,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--record_dir",
-        # default="/home/nvidia/tmp_record",
+        default="/home/nvidia/tmp_record",
         type=str,
         help="directory to record camera log",
     )
@@ -43,18 +43,9 @@ def run_application(
     robot_port: str, record_dir: Optional[str], a_camera_name, b_camera_name
 ) -> None:
     """アプリケーションを実行する"""
-    # 引数と日時から録画の保存先のファイルパスを決定
-    if record_dir:
-        dt_now = datetime.datetime.now()
-        record_path = os.path.join(
-            record_dir, dt_now.strftime("camera_%Y%m%d_%H%M%S.bag")
-        )
-        print(f"Camera record path: {record_path}")
-    else:
-        record_path = None
-        print("Directory not specified. Disable camera recording.")
 
-    with RealsenseCameraFactory(record_path) as camera_factory, UsbCamera(
+    # 'record_dir'が存在しないパスだったときにエラーになるかも
+    with RealsenseCameraFactory(record_dir) as camera_factory, UsbCamera(
         a_camera_name
     ) as a_camera, UsbCamera(
         b_camera_name
