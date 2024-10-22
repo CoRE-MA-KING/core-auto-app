@@ -34,6 +34,7 @@ class RealsenseCamera(Camera):
             self.config.enable_record_to_file(record_path)
 
         self._is_running = False
+        print("init realsense camera")
 
     @property
     def is_running(self):
@@ -42,6 +43,7 @@ class RealsenseCamera(Camera):
     def start(self):
         """カメラストリームを開始させる"""
         try:
+            print("start realsense stream")
             self.pipeline.start(self.config)
             self._is_running = True
         except RuntimeError as err:
@@ -50,6 +52,7 @@ class RealsenseCamera(Camera):
 
     def stop(self):
         """カメラストリームを停止させる"""
+        print("stop realsense stream")
         self.pipeline.stop()
         self._is_running = False
 
@@ -104,7 +107,7 @@ class RealsenseCameraFactory(CameraFactory):
         self._camera.start()
 
     def create(self, record: bool) -> Camera:
-        print("creating realsense camera")
+        print("creating realsense camera factory")
         tmp_record_path = self._record_path if record else None
         self._camera.close()
         self._camera = RealsenseCamera(tmp_record_path)
