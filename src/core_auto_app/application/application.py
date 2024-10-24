@@ -52,7 +52,7 @@ class Application(ApplicationInterface):
             if color is None:
                 color = self._a_camera.get_image()
 
-            # 描画
+            # 描画 (ここの指定によって画像の質が変わりそう)
             self._presenter.show(color, robot_state)
             command = self._presenter.get_ui_command()
 
