@@ -73,8 +73,16 @@ class SerialRobotDriver(RobotDriver):
             # 改行コード"\n"まで読む
             # ここでパリティチェックの処理を追加して良さそう
             try:
+                # buffer = "2,2,3,4,5,1,4,0"  # テスト時のダミー
                 buffer = self._serial.readline()
-                print(buffer)
+                print(f"read state: {buffer}")
+
+                # マイコンに送信
+                send_buffer = "640,360,0,0\n"
+                self._serial.write(send_buffer.encode())
+                # sleep(2)  # これはマイコン側での問題なのでいらなさそう？
+                print(f"send data: {send_buffer}")
+
             except Exception as err:
                 print(err)
                 self._serial.close()
@@ -83,8 +91,11 @@ class SerialRobotDriver(RobotDriver):
 
             # タイムアウトが発生した場合、改行コード"\n"が含まれない
             try:
+                # str_data = buffer  # テスト時のダミー
                 str_data = buffer.decode("ascii")
+
             except UnicodeDecodeError as err:
+                # ここでvideo_id=0に強制してもいいかも
                 print(err)
                 continue
             if "\n" not in str_data:

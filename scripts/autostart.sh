@@ -10,4 +10,3 @@ xrandr --output DP-1 --mode 1280x720
 
 # 仮想シリアルポートを使用しないアプリケーションの起動
 core_auto_app --robot_port=/dev/ttyUSB0
-
