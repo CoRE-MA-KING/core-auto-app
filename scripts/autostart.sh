@@ -14,7 +14,7 @@ echo $monitor
 # モニタをオンにして解像度を設定する（1920x1080, リフレッシュレート60Hz）
 sleep 1  # 1秒待機
 
-xrandr --output "$monitor" --mode 1920x1080
+xrandr --output "$monitor" --mode 1280x720  --rate 30
 
 # 仮想シリアルポートを使用しないアプリケーションの起動
 core_auto_app --robot_port=/dev/ttyUSB0
