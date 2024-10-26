@@ -21,7 +21,8 @@ class SerialRobotDriver(RobotDriver):
     def __init__(
         self,
         port,
-        baudrate=115200,
+        # baudrate=115200,
+        baudrate=921600,
         parity=serial.PARITY_NONE,
         # parity=serial.PARITY_EVEN,
         stopbits=serial.STOPBITS_ONE,
@@ -96,7 +97,6 @@ class SerialRobotDriver(RobotDriver):
             except UnicodeDecodeError as err:
                 # ここでvideo_id=0に強制してもいいかも
                 print(err)
-                print("パースできない")
                 continue
             if "\n" not in str_data:
                 continue
@@ -105,6 +105,7 @@ class SerialRobotDriver(RobotDriver):
             try:
                 str_data = str_data.replace("\n", "")
                 str_data = str_data.split(",")
+
                 robot_state = RobotState(
                     state_id=RobotStateId(int(str_data[0])),
                     pitch_deg=float(str_data[1]) / 10.0,  # 1/10deg
@@ -119,7 +120,7 @@ class SerialRobotDriver(RobotDriver):
                     reserved=int(str_data[7])  # 未使用
                 )
             except ValueError as err:
-                print("パースできず")
+                # print("パースできず")
                 print(err)
                 continue
 
