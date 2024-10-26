@@ -71,17 +71,16 @@ class SerialRobotDriver(RobotDriver):
                 continue
 
             # 改行コード"\n"まで読む
-            # ここでパリティチェックの処理を追加して良さそう
             try:
                 # buffer = "2,2,3,4,5,1,4,0"  # テスト時のダミー
                 buffer = self._serial.readline()
                 print(f"read state: {buffer}")
 
                 # マイコンに送信
-                send_buffer = "640,360,0,0\n"
-                self._serial.write(send_buffer.encode())
+                # send_buffer = "640,360,0,0\n"
+                # self._serial.write(send_buffer.encode())
                 # sleep(2)  # これはマイコン側での問題なのでいらなさそう？
-                print(f"send data: {send_buffer}")
+                # print(f"send data: {send_buffer}")
 
             except Exception as err:
                 print(err)
@@ -97,6 +96,7 @@ class SerialRobotDriver(RobotDriver):
             except UnicodeDecodeError as err:
                 # ここでvideo_id=0に強制してもいいかも
                 print(err)
+                print("パースできない")
                 continue
             if "\n" not in str_data:
                 continue
@@ -109,7 +109,7 @@ class SerialRobotDriver(RobotDriver):
                     state_id=RobotStateId(int(str_data[0])),
                     pitch_deg=float(str_data[1]) / 10.0,  # 1/10deg
                     muzzle_velocity=float(str_data[2]) / 1000,  # m/s
-                    reloaded_rleft_disks=int(str_data[3]),  # 枚
+                    reloaded_left_disks=int(str_data[3]),  # 枚
                     reloaded_right_disks=int(str_data[4]),  # 枚
                     video_id=int(str_data[5]),  # カメラID
                     # "str_data[6]"は複数のflagをまとめたバイト
@@ -119,6 +119,7 @@ class SerialRobotDriver(RobotDriver):
                     reserved=int(str_data[7])  # 未使用
                 )
             except ValueError as err:
+                print("パースできず")
                 print(err)
                 continue
 

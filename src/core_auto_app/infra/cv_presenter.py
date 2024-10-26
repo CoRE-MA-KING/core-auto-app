@@ -69,7 +69,7 @@ class CvPresenter(Presenter):
         STATE_MAP = {
             RobotStateId.UNKNOWN: "不明",
             RobotStateId.INITIALIZING: "初期化",
-            RobotStateId.NORMAL: "通常動作",
+            RobotStateId.NORMAL: "通常",
             RobotStateId.DEFEATED: "被撃破",
             RobotStateId.EMERGENCY: "非常停止",
             RobotStateId.COMM_ERROR: "通信エラー",
@@ -80,33 +80,39 @@ class CvPresenter(Presenter):
         if image is None:
             image = np.zeros((720, 1280, 3), dtype=np.uint8)
 
-        left_disk_color=(255, 255, 255)
-        if robot_state.reloaded_left_disks <= 5:
-            left_disk_color=(0, 0, 255)
+        # left_disk_color=(255, 255, 255)
+        # if robot_state.reloaded_left_disks <= 5:
+        #     left_disk_color=(0, 0, 255)
 
-        right_disk_color=(255, 255, 255)
-        if robot_state.reloaded_right_disks <= 5:
-            right_disk_color=(0, 0, 255)
+        # right_disk_color=(255, 255, 255)
+        # if robot_state.reloaded_right_disks <= 5:
+        #     right_disk_color=(0, 0, 255)
 
+        record_txt = ""
         if robot_state.record_video:
-            image = put_outline_text(image, text=f"● 録画中", pos=(1100, 15), size=30, color=(0, 255, 0))
+            record_txt = "●REC"
 
         auto_aim_str = "マニュアルモード"
-        auto_aim_color = (255, 255, 255)
         if robot_state.auto_aim:
             auto_aim_str = "自動照準モード"
-            auto_aim_color = (0, 255, 255)
-        image = put_outline_text(image, text=f"{auto_aim_str}", pos=(45, 60), size=30, color=auto_aim_color)
 
-        # 個別に文字列を表示
-        image = put_outline_text(image, text=f"[状態] {state_str}", pos=(30, 15), size=30, color=(255, 255, 255))
-        image = put_outline_text(image, text=f"[残弾] ", pos=(700, 645), size=45, color=(255, 255, 255))
-        image = put_outline_text(image, text=f"(左) {robot_state.reloaded_left_disks}", pos=(875, 645), size=45, color=left_disk_color)
-        image = put_outline_text(image, text=f"(右) {robot_state.reloaded_right_disks}", pos=(1075, 645), size=45, color=right_disk_color)
-        image = put_outline_text(image, text=f"[ピッチ] {robot_state.pitch_deg:.1f}°", pos=(45, 615), size=30, color=(255, 255, 255))
-        image = put_outline_text(image, text=f"[射出速度] {robot_state.muzzle_velocity:.1f}m/s", pos=(45, 660), size=30, color=(255, 255, 255))
+        # # 個別に文字列を表示
+        # image = put_outline_text(image, text=f"[状態] {state_str}", pos=(30, 15), size=30, color=(255, 255, 255))
+        # image = put_outline_text(image, text=f"[残弾] ", pos=(700, 645), size=45, color=(255, 255, 255))
+        # image = put_outline_text(image, text=f"(左) {robot_state.reloaded_left_disks}", pos=(875, 645), size=45, color=left_disk_color)
+        # image = put_outline_text(image, text=f"(右) {robot_state.reloaded_right_disks}", pos=(1075, 645), size=45, color=right_disk_color)
+        # image = put_outline_text(image, text=f"[ピッチ] {robot_state.pitch_deg:.1f}°", pos=(45, 615), size=30, color=(255, 255, 255))
+        # image = put_outline_text(image, text=f"[射出速度] {robot_state.muzzle_velocity:.1f}m/s", pos=(45, 660), size=30, color=(255, 255, 255))
 
-        # 十字を表示
+
+        # まとめて文字列を表示　
+        image = put_outline_text(
+            image, text=f"【残弾】　(左){robot_state.reloaded_left_disks}　(右){robot_state.reloaded_right_disks}\n"
+                        f"【ピッチ】{robot_state.pitch_deg:.1f}° 【射出速度】 {robot_state.muzzle_velocity:.1f}m/s　　　　【状態】{state_str} {record_txt}",
+            pos=(300, 630), size=30, color=(255, 255, 255)
+        )
+
+        # 十字を表示q
         image = draw_crosshair(
             image, (image.shape[1] // 2, image.shape[0] // 2), (0, 255, 255)
         )
