@@ -21,7 +21,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--record_dir",
-        default="/home/nvidia/tmp_record",
+        default="/mnt/ssd1",
         type=str,
         help="directory to record camera log",
     )
