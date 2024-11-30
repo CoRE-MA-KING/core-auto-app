@@ -15,7 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--robot_port",
-        default="/dev/ttyUSB0",
+        default="/dev/ttyACM0",
         type=str,
         help="serial port for communicating with robot",
     )

@@ -21,8 +21,8 @@ class SerialRobotDriver(RobotDriver):
     def __init__(
         self,
         port,
-        # baudrate=115200,
-        baudrate=921600,
+        baudrate=115200,
+        # baudrate=921600,
         parity=serial.PARITY_NONE,
         # parity=serial.PARITY_EVEN,
         stopbits=serial.STOPBITS_ONE,

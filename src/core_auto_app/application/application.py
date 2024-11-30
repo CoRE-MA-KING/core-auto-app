@@ -43,10 +43,12 @@ class Application(ApplicationInterface):
             # カメラ画像取得
             if robot_state.video_id == 0:
                 color = self._a_camera.get_image()
+                # color, depth = self._camera.get_images()
             elif robot_state.video_id == 1:
                 color = self._b_camera.get_image()
             elif robot_state.video_id == 2:
                 color, depth = self._camera.get_images()
+                # color = self._a_camera.get_image()
 
             # 指定されたカメラ画像を取得できなかった場合、カメラAの画像を再取得
             if color is None:
