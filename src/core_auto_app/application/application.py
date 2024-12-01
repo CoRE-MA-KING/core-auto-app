@@ -41,19 +41,18 @@ class Application(ApplicationInterface):
                 self._realsense_camera.stop_recording()
                 self._is_recording = False
 
-            color_rs, depth_rs = self._realsense_camera.get_images()
-
             # カメラ画像取得
             if robot_state.video_id == 0:
                 color = self._a_camera.get_image()
             elif robot_state.video_id == 1:
                 color = self._b_camera.get_image()
             elif robot_state.video_id == 2:
-                color = color_rs
+                color, depth = self._realsense_camera.get_images()
+            else:
+                color = self._a_camera.get_image()  # デフォルトでカメラAの画像
 
-            # 指定されたカメラ画像を取得できなかった場合、カメラAの画像を再取得
             if color is None:
-                color = self._a_camera.get_image()
+                color = self._a_camera.get_image()  # 取得できなかった場合はカメラAの画像
 
             # 描画 (ここの指定によって画像の質が変わりそう)
             self._presenter.show(color, robot_state)
