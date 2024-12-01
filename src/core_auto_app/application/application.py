@@ -1,7 +1,7 @@
 from core_auto_app.application.interfaces import (
     ApplicationInterface,
     ColorCamera,
-    CameraFactory,
+    Camera,
     Presenter,
     RobotDriver,
 )
@@ -12,43 +12,44 @@ class Application(ApplicationInterface):
 
     def __init__(
         self,
-        camera_factory: CameraFactory,
+        realsense_camera: Camera,
         a_camera: ColorCamera,
         b_camera: ColorCamera,
         presenter: Presenter,
         robot_driver: RobotDriver,
     ):
-        self._camera_factory = camera_factory
+        self._realsense_camera = realsense_camera
         self._a_camera = a_camera
         self._b_camera = b_camera
         self._presenter = presenter
         self._robot_driver = robot_driver
 
-        self._prev_record = False
-        self._camera = self._camera_factory.create(record_flag=False)
+        self._is_recording = False  # 録画状態のフラグ
 
     def spin(self):
         self._a_camera.start()
         self._b_camera.start()
+        self._realsense_camera.start()
         while True:
             # ロボットの状態取得
             robot_state = self._robot_driver.get_robot_state()
             # 録画設定の更新
-            if robot_state.record_video != self._prev_record:
-                self._camera = self._camera_factory.create(robot_state.record_video)
-                self._prev_record = robot_state.record_video
-                # NOTE: フルスクリーンがバグったときのためウィンドウを作り直す
-                self._presenter.recreate_window()
+            if robot_state.record_video and not self._is_recording:
+                self._realsense_camera.start_recording()
+                self._is_recording = True
+            elif not robot_state.record_video and self._is_recording:
+                self._realsense_camera.stop_recording()
+                self._is_recording = False
+
+            color_rs, depth_rs = self._realsense_camera.get_images()
 
             # カメラ画像取得
             if robot_state.video_id == 0:
                 color = self._a_camera.get_image()
-                # color, depth = self._camera.get_images()
             elif robot_state.video_id == 1:
                 color = self._b_camera.get_image()
             elif robot_state.video_id == 2:
-                color, depth = self._camera.get_images()
-                # color = self._a_camera.get_image()
+                color = color_rs
 
             # 指定されたカメラ画像を取得できなかった場合、カメラAの画像を再取得
             if color is None:
@@ -60,3 +61,8 @@ class Application(ApplicationInterface):
 
             if command == Command.QUIT:
                 break
+
+        # アプリケーション終了時にカメラを停止
+        self._realsense_camera.close()
+        self._a_camera.close()
+        self._b_camera.close()

@@ -5,7 +5,7 @@ from typing import Optional
 
 from core_auto_app.application.application import Application
 from core_auto_app.infra.cv_presenter import CvPresenter
-from core_auto_app.infra.realsense_camera import RealsenseCameraFactory
+from core_auto_app.infra.realsense_camera import RealsenseCamera
 from core_auto_app.infra.serial_robot_driver import SerialRobotDriver
 from core_auto_app.infra.usb_camera import UsbCamera
 
@@ -45,14 +45,14 @@ def run_application(
     """アプリケーションを実行する"""
 
     # 'record_dir'が存在しないパスだったときにエラーになるかも
-    with RealsenseCameraFactory(record_dir) as camera_factory, UsbCamera(
+    with RealsenseCamera(record_dir) as realsense_camera, UsbCamera(
         a_camera_name
     ) as a_camera, UsbCamera(
         b_camera_name
     ) as b_camera, CvPresenter() as presenter, SerialRobotDriver(
         robot_port
     ) as robot_driver:
-        app = Application(camera_factory, a_camera, b_camera, presenter, robot_driver)
+        app = Application(realsense_camera, a_camera, b_camera, presenter, robot_driver)
         app.spin()
 
 
