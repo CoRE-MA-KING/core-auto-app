@@ -7,7 +7,6 @@ from PIL import ImageFont, ImageDraw, Image
 from core_auto_app.application.interfaces import Presenter
 from core_auto_app.domain.messages import Command, RobotStateId, RobotState
 
-
 def put_text(img, text, pos, size, color):
     """日本語フォントを画面に描画する関数"""
     font = ImageFont.truetype(
@@ -67,12 +66,12 @@ class CvPresenter(Presenter):
         """
 
         STATE_MAP = {
-            RobotStateId.UNKNOWN: "不明",
-            RobotStateId.INITIALIZING: "初期化",
-            RobotStateId.NORMAL: "通常動作",
-            RobotStateId.DEFEATED: "撃破",
-            RobotStateId.EMERGENCY: "非常停止",
-            RobotStateId.COMM_ERROR: "通信エラー",
+            RobotStateId.UNKNOWN: "Unknown",
+            RobotStateId.INITIALIZING: "Init",
+            RobotStateId.NORMAL: "Normal",
+            RobotStateId.DEFEATED: "Destoryed",
+            RobotStateId.EMERGENCY: "EmergencyStop",
+            RobotStateId.COMM_ERROR: "CommuError",
         }
         state_str = STATE_MAP[robot_state.state_id]
 
@@ -80,24 +79,38 @@ class CvPresenter(Presenter):
         if image is None:
             image = np.zeros((720, 1280, 3), dtype=np.uint8)
 
-        # 文字を表示
-        image = put_outline_text(
-            image,
-            text=(
-                f"状態 {state_str} "
-                f"ピッチ {robot_state.pitch_deg:.1f}° "
-                f"初速 {robot_state.muzzle_velocity:.1f} m/s "
-                f"残弾数 {robot_state.num_disks}"
-            ),
-            pos=(560, 660),
-            size=30,
-            color=(255, 255, 255),
-        )
+        # left_disk_color=(255, 255, 255)
+        # if robot_state.reloaded_left_disks <= 5:
+        #     left_disk_color=(0, 0, 255)
 
-        # 十字を表示
-        image = draw_crosshair(
-            image, (image.shape[1] // 2, image.shape[0] // 2), (255, 255, 255)
-        )
+        # right_disk_color=(255, 255, 255)
+        # if robot_state.reloaded_right_disks <= 5:
+        #     right_disk_color=(0, 0, 255)
+
+        record_txt = ""
+        if robot_state.record_video:
+            record_txt = "(REC)"
+
+        auto_aim_str = "Manual"
+        if robot_state.auto_aim:
+            auto_aim_str = "Auto Aim"
+
+        # cv2.putText(image, "ABCxyz", (300, 630), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255,255,255))
+
+        cv2.putText(image,
+                    f"[Disk]L:{robot_state.reloaded_left_disks:>2}/R:{robot_state.reloaded_right_disks:>2} [Deg]:{robot_state.pitch_deg:5.1f} [State]:{state_str:<14} {record_txt}", (300, 690), cv2.FONT_HERSHEY_DUPLEX, 1.0, color=(255, 255, 255), thickness=2)
+
+        # # まとめて文字列を表示　
+        # image = put_outline_text(ssss
+        #     image, text=f"【残弾】　(左){robot_state.reloaded_left_disks}　(右){robot_state.reloaded_right_disks}\n"s
+        #                 f"【ピッチ】{robot_state.pitch_deg:.1f}° 【射出速度】 {robot_state.muzzle_velocity:.1f}m/s　　　　【状態】{state_str} {record_txt}",
+        #     pos=(300, 630), size=30, color=(255, 255, 255)
+        # )
+
+        # # 十字を表示q
+        # image = draw_crosshair(
+        #     image, (image.shape[1] // 2, image.shape[0] // 2), (0, 255, 255)
+        # )
 
         # OpenCVの仕様上、cv2.waitKey()が呼ばれないと表示されない
         cv2.imshow("display", image)

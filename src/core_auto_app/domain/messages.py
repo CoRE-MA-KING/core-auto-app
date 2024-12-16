@@ -35,10 +35,13 @@ class RobotState(BaseModel):
     """マイコンと通信して取得したロボットの状態"""
 
     state_id: RobotStateId = RobotStateId.UNKNOWN
-    ready_to_fire: bool = False
-    pitch_deg: float = 0  # deg
-    muzzle_velocity: float = 0  # mm/s
-    record_video: bool = False
-    reboot_pc: bool = False  # 未使用
-    num_disks: int = 0
+    pitch_deg: float = 0.0  # deg (マイコンからの受信時には10倍した整数)
+    muzzle_velocity: float = 0.0  # mm/s (マイコンからの受信時には1000倍した整数)
+    reloaded_left_disks: int = 0  # 枚
+    reloaded_right_disks: int = 0  # 枚
     video_id: int = 0  # 表示するカメラ 0 RealSense, 1 前方, 2 後方
+    # flags: int  # 複数のフラグを1バイトでまとめて(bit: [2]自動照準 [1]録画 [0]射出可否)
+    auto_aim: bool = False
+    record_video: bool = False
+    ready_to_fire: bool = False
+    reserved: int = 0  # 未使用

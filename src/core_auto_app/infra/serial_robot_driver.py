@@ -21,15 +21,18 @@ class SerialRobotDriver(RobotDriver):
     def __init__(
         self,
         port,
-        # baudrate=921600,
         baudrate=115200,
+        # baudrate=921600,
         parity=serial.PARITY_NONE,
+        # parity=serial.PARITY_EVEN,
+        stopbits=serial.STOPBITS_ONE,
         timeout=1.0,
     ):
         # シリアルポートを開く
         self._port = port
         self._baudrate = baudrate
         self._parity = parity
+        self._stopbits = stopbits
         self._timeout = timeout
         self._port: Optional[serial.Serial]
         self._open_serial_port()
@@ -51,6 +54,7 @@ class SerialRobotDriver(RobotDriver):
             self._serial = serial.Serial(
                 port=self._port,
                 baudrate=self._baudrate,
+                stopbits=self._stopbits,
                 parity=self._parity,
                 timeout=self._timeout,
             )
@@ -69,8 +73,16 @@ class SerialRobotDriver(RobotDriver):
 
             # 改行コード"\n"まで読む
             try:
+                # buffer = "2,2,3,4,5,1,4,0"  # テスト時のダミー
                 buffer = self._serial.readline()
-                print(buffer)
+                print(f"read state: {buffer}")
+
+                # マイコンに送信
+                # send_buffer = "640,360,0,0\n"
+                # self._serial.write(send_buffer.encode())
+                # sleep(2)  # これはマイコン側での問題なのでいらなさそう？
+                # print(f"send data: {send_buffer}")
+
             except Exception as err:
                 print(err)
                 self._serial.close()
@@ -79,8 +91,11 @@ class SerialRobotDriver(RobotDriver):
 
             # タイムアウトが発生した場合、改行コード"\n"が含まれない
             try:
+                # str_data = buffer  # テスト時のダミー
                 str_data = buffer.decode("ascii")
+
             except UnicodeDecodeError as err:
+                # ここでvideo_id=0に強制してもいいかも
                 print(err)
                 continue
             if "\n" not in str_data:
@@ -90,17 +105,22 @@ class SerialRobotDriver(RobotDriver):
             try:
                 str_data = str_data.replace("\n", "")
                 str_data = str_data.split(",")
+
                 robot_state = RobotState(
                     state_id=RobotStateId(int(str_data[0])),
-                    ready_to_fire=bool(int(str_data[1])),
-                    pitch_deg=float(str_data[2]) / 10.0,  # 1/10deg
-                    muzzle_velocity=float(str_data[3]) / 1000,  # mm/s
-                    record_video=bool(int(str_data[4])),
-                    reboot_pc=bool(int(str_data[5])),
-                    num_disks=int(str_data[6]),
-                    video_id=int(str_data[7]),
+                    pitch_deg=float(str_data[1]) / 10.0,  # 1/10deg
+                    muzzle_velocity=float(str_data[2]) / 1000,  # m/s
+                    reloaded_left_disks=int(str_data[3]),  # 枚
+                    reloaded_right_disks=int(str_data[4]),  # 枚
+                    video_id=int(str_data[5]),  # カメラID
+                    # "str_data[6]"は複数のflagをまとめたバイト
+                    auto_aim=bool((int(str_data[6]) >> 2) & 0b00000001),  # 自動照準フラグ
+                    record_video=bool((int(str_data[6]) >> 1) & 0b00000001),  # 録画フラグ
+                    ready_to_fire=bool((int(str_data[6]) >> 0) & 0b00000001),  # 射出可否フラグ
+                    reserved=int(str_data[7])  # 未使用
                 )
             except ValueError as err:
+                # print("パースできず")
                 print(err)
                 continue
 
