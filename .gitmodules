@@ -1,6 +1,3 @@
 [submodule "3rdparty/librealsense"]
 	path = 3rdparty/librealsense
 	url = https://github.com/IntelRealSense/librealsense.git
-[submodule "3rdparty/YOLOX"]
-	path = 3rdparty/YOLOX
-	url = git@github.com:CoRE-MA-KING/YOLOX.git
