@@ -1,7 +1,7 @@
 # python generated files
 __pycache__/
 *.py[oc]
-3rdparty/
+# 3rdparty/
 build/
 dist/
 wheels/
