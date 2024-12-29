@@ -76,6 +76,70 @@ $ cd ../../../
 $ ln -s /usr/lib/python3.8/dist-packages/cv2 .venv/lib/python3.8/site-packages/cv2
 ```
 
+### YOLOXとその依存関係のインストール
+
+ダメージパネルの物体認識のためにYOLOXを使用します。少々特殊な環境であるため、パッケージを含めて手動でインストールします。一部のパッケージはソースビルドが必要です。
+
+#### torch・torchvisionのインストール
+
+周辺ツールをインストール
+
+```sh
+$ sudo apt install autoconf bc build-essential g++-8 gcc-8 clang-8 lld-8 gettext-base gfortran-8 iputils-ping libbz2-dev libc++-dev libcgal-dev libffi-dev libfreetype6-dev libhdf5-dev libjpeg-dev liblzma-dev libncurses5-dev libncursesw5-dev libpng-dev libreadline-dev libssl-dev libsqlite3-dev libxml2-dev libxslt-dev locales moreutils openssl python-openssl rsync scons python3-pip libopenblas-dev
+```
+
+torchをインストール
+
+```sh
+# インストールしたいバージョン（JetPackのバージョンに依存）に合わせた環境変数を設定（今回はJetPack5）
+$ export TORCH_INSTALL=https://developer.download.nvidia.com/compute/redist/jp/v512/pytorch/torch-2.1.0a0+41361538.nv23.06-cp38-cp38-linux_aarch64.whl
+
+$ python3 -m pip install --upgrade pip
+$ python3 -m pip install aiohttp numpy=='1.24.4' scipy=='1.5.3'
+$ export "LD_LIBRARY_PATH=/usr/lib/llvm-8/lib:$LD_LIBRARY_PATH"
+$ python3 -m pip install --upgrade protobuf
+$ python3 -m pip install --no-cache $TORCH_INSTALL
+```
+
+torchvisionをインストール
+
+```sh
+# torchvisionをビルド＋インストール
+$ sudo apt install libjpeg-dev zlib1g-dev libpython3-dev libopenblas-dev libavcodec-dev libavformat-dev libswscale-dev
+$ cd 3rdparty
+$ git clone --branch release/0.16 https://github.com/pytorch/vision torchvision
+$ cd torchvision
+$ export BUILD_VERSION=0.16.1  # インストール対象バージョンに合わせた環境変数の指定
+$ python3 setup.py install # --userをつけてしまうと"~/.local/"配下にインストールされるので注意
+```
+
+#### onnx-simplifier(onnxsim)のインストール
+
+onnxsimはpipでのインストールに引っかかりやすいので、以下のコマンドでビルドとインストールを実行し、Pythonパッケージとして登録します。
+
+```sh
+$ git submodule update --init --recursive
+$ cd 3rdparty/onnx-simplifier
+$ pip3 install -r requirements.txt
+$ mkdir build && cd build
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
+$ make -j$(nproc)
+$ cd ../
+$ pip3 instlal .
+```
+
+#### YOLOXのインストール
+
+依存関係のツールが準備できたら、YOLOXをインストールします。
+
+本家YOLOXのリポジトリからForkしてJetson（JetPack5）に少しカスタマイズしています。`PEP 517`の処理フローの関係で`pip3 install -v -e .`ではなく`python3 setup.py develop`でインストールを実行します。
+
+```sh
+$ git submodule update --init --recursive
+$ cd 3rdparty/YOLOX
+$ python3 setup.py develop  # "pip3 install -v -e ."はNG
+```
+
 # Usage
 
 以下のコマンドで rye の仮想環境でアプリケーションを起動できます。
