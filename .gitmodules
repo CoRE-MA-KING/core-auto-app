@@ -4,3 +4,6 @@
 [submodule "3rdparty/YOLOX"]
 	path = 3rdparty/YOLOX
 	url = https://github.com/CoRE-MA-KING/YOLOX.git
+[submodule "3rdparty/onnx-simplifier"]
+	path = 3rdparty/onnx-simplifier
+	url = https://github.com/daquexian/onnx-simplifier.git
