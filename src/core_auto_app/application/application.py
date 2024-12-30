@@ -6,6 +6,9 @@ from core_auto_app.application.interfaces import (
     RobotDriver,
 )
 from core_auto_app.domain.messages import Command
+from core_auto_app.application.object_detector import YOLOXDetector  # YOLOX用クラスをインポート
+
+import cv2
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application."""
@@ -17,6 +20,7 @@ class Application(ApplicationInterface):
         b_camera: ColorCamera,
         presenter: Presenter,
         robot_driver: RobotDriver,
+        weight_path: str  # コマンドライン引数で渡すモデルファイルパス
     ):
         self._realsense_camera = realsense_camera
         self._a_camera = a_camera
@@ -24,7 +28,12 @@ class Application(ApplicationInterface):
         self._presenter = presenter
         self._robot_driver = robot_driver
 
-        self._is_recording = False  # 録画状態のフラグ
+        self._is_recording = False
+
+        # YOLOXモデル初期化
+        # weight_pathはmain.pyから受け取ったpthファイルのパス
+        # ここでスコアしきい値(score_thr)やNMSしきい値(nmsthre)も調整可能
+        self._detector = YOLOXDetector(weight_path, score_thr=0.8, nmsthre=0.45)
 
     def spin(self):
         self._a_camera.start()
@@ -48,6 +57,11 @@ class Application(ApplicationInterface):
                 color = self._b_camera.get_image()
             elif robot_state.video_id == 2:
                 color, depth = self._realsense_camera.get_images()
+                if color is not None:
+                    # YOLOXで予測
+                    detections = self._detector.predict(color)
+                    # 検出結果を描画
+                    self._detector.draw_boxes(color, detections)
             else:
                 color = self._a_camera.get_image()  # デフォルトでカメラAの画像
 
