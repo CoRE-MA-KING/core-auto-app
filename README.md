@@ -89,7 +89,6 @@ $ sudo apt install autoconf bc build-essential g++-8 gcc-8 clang-8 lld-8 gettext
 # インストールしたいバージョン（JetPackのバージョンに依存）に合わせた環境変数を設定（今回はJetPack5）
 $ export TORCH_INSTALL=https://developer.download.nvidia.com/compute/redist/jp/v512/pytorch/torch-2.1.0a0+41361538.nv23.06-cp38-cp38-linux_aarch64.whl
 
-$ python3 -m pip install --upgrade pip
 $ python3 -m pip install aiohttp numpy=='1.24.4' scipy=='1.5.3'
 $ export "LD_LIBRARY_PATH=/usr/lib/llvm-8/lib:$LD_LIBRARY_PATH"
 $ python3 -m pip install --upgrade protobuf
@@ -99,7 +98,9 @@ $ python3 -m pip install --no-cache $TORCH_INSTALL
 #### torchvisionのインストール
 
 ```sh
+# 周辺ツールをインストール
 $ sudo apt install libjpeg-dev zlib1g-dev libpython3-dev libopenblas-dev libavcodec-dev libavformat-dev libswscale-dev
+
 $ git submodule update --init --recursive
 $ cd 3rdparty/torchvision
 #$ git checkout <任意のバージョン>  # 任意のバージョンにチェックアウトデフォルトではJetPack5に対応した0.16でサブモジュール登録済み
