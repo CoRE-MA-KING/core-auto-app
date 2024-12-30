@@ -7,3 +7,6 @@
 [submodule "3rdparty/onnx-simplifier"]
 	path = 3rdparty/onnx-simplifier
 	url = https://github.com/daquexian/onnx-simplifier.git
+[submodule "3rdparty/torchvision"]
+	path = 3rdparty/torchvision
+	url = https://github.com/pytorch/vision

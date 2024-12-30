@@ -80,17 +80,12 @@ $ ln -s /usr/lib/python3.8/dist-packages/cv2 .venv/lib/python3.8/site-packages/c
 
 ダメージパネルの物体認識のためにYOLOXを使用します。少々特殊な環境であるため、パッケージを含めて手動でインストールします。一部のパッケージはソースビルドが必要です。
 
-#### torch・torchvisionのインストール
-
-周辺ツールをインストール
+#### torchののインストール
 
 ```sh
+# 周辺ツールをインストール
 $ sudo apt install autoconf bc build-essential g++-8 gcc-8 clang-8 lld-8 gettext-base gfortran-8 iputils-ping libbz2-dev libc++-dev libcgal-dev libffi-dev libfreetype6-dev libhdf5-dev libjpeg-dev liblzma-dev libncurses5-dev libncursesw5-dev libpng-dev libreadline-dev libssl-dev libsqlite3-dev libxml2-dev libxslt-dev locales moreutils openssl python-openssl rsync scons python3-pip libopenblas-dev
-```
 
-torchをインストール
-
-```sh
 # インストールしたいバージョン（JetPackのバージョンに依存）に合わせた環境変数を設定（今回はJetPack5）
 $ export TORCH_INSTALL=https://developer.download.nvidia.com/compute/redist/jp/v512/pytorch/torch-2.1.0a0+41361538.nv23.06-cp38-cp38-linux_aarch64.whl
 
@@ -101,14 +96,13 @@ $ python3 -m pip install --upgrade protobuf
 $ python3 -m pip install --no-cache $TORCH_INSTALL
 ```
 
-torchvisionをインストール
+#### torchvisionのインストール
 
 ```sh
-# torchvisionをビルド＋インストール
 $ sudo apt install libjpeg-dev zlib1g-dev libpython3-dev libopenblas-dev libavcodec-dev libavformat-dev libswscale-dev
-$ cd 3rdparty
-$ git clone --branch release/0.16 https://github.com/pytorch/vision torchvision
-$ cd torchvision
+$ git submodule update --init --recursive
+$ cd 3rdparty/torchvision
+#$ git checkout <任意のバージョン>  # 任意のバージョンにチェックアウトデフォルトではJetPack5に対応した0.16でサブモジュール登録済み
 $ export BUILD_VERSION=0.16.1  # インストール対象バージョンに合わせた環境変数の指定
 $ python3 setup.py install # --userをつけてしまうと"~/.local/"配下にインストールされるので注意
 ```
