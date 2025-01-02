@@ -64,7 +64,7 @@ class Application(ApplicationInterface):
                     # YOLOXで物体を検出
                     detections = self._detector.predict(color)
                     # detections: [(x1, y1, x2, y2, score, cls_id), ...]
-                    
+
                     # 検出結果を描画（物体検出の結果）
                     # self._detector.draw_boxes(color, detections)
 
@@ -73,8 +73,8 @@ class Application(ApplicationInterface):
                     # tracked_objects: [(x1, y1, x2, y2, track_id), ...]
 
                     # 検出結果を描画（トラッキングの結果）
-                    self._tracker.draw_boxes(color, tracked_objects)                    
-                    
+                    self._tracker.draw_boxes(color, tracked_objects)
+
             else:
                 color = self._a_camera.get_image()  # デフォルトでカメラAの画像
 
