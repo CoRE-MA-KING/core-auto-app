@@ -1,4 +1,5 @@
 from motpy import Detection, MultiObjectTracker
+import cv2
 
 class ObjectTracker:
     def __init__(self, fps=30.0):
@@ -50,3 +51,15 @@ class ObjectTracker:
             results.append((x1, y1, x2, y2, track_id))
 
         return results
+
+    def draw_boxes(self, frame, tracked_objects):
+        """
+        tracked_objects: [(x1, y1, x2, y2, track_id), ...]
+        track_idは連番ID
+        """
+        for (x1, y1, x2, y2, track_id) in tracked_objects:
+            # 今回はクラス名を固定（例: "damage_panel"）
+            # クラス名を複数管理するなら別途ロジックを追加
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0,255,0), 2)
+            cv2.putText(frame, f"ID: {track_id}", (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,255,0), 2)

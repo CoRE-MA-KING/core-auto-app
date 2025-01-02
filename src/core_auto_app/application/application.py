@@ -73,7 +73,7 @@ class Application(ApplicationInterface):
                     # tracked_objects: [(x1, y1, x2, y2, track_id), ...]
 
                     # 検出結果を描画（トラッキングの結果）
-                    self._draw_tracking(color, tracked_objects)                    
+                    self._tracker.draw_boxes(color, tracked_objects)                    
                     
             else:
                 color = self._a_camera.get_image()  # デフォルトでカメラAの画像
@@ -92,16 +92,3 @@ class Application(ApplicationInterface):
         self._realsense_camera.close()
         self._a_camera.close()
         self._b_camera.close()
-
-    # ひとまずここに残すが、このあと別の箇所に移植
-    def _draw_tracking(self, frame, tracked_objects):
-        """
-        tracked_objects: [(x1, y1, x2, y2, track_id), ...]
-        track_idは連番ID
-        """
-        for (x1, y1, x2, y2, track_id) in tracked_objects:
-            # 今回はクラス名を固定（例: "damage_panel"）
-            # クラス名を複数管理するなら別途ロジックを追加
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0,255,0), 2)
-            cv2.putText(frame, f"ID: {track_id}", (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,255,0), 2)
