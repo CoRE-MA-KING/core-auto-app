@@ -6,7 +6,7 @@ from core_auto_app.application.interfaces import (
     RobotDriver,
 )
 from core_auto_app.domain.messages import Command
-from core_auto_app.application.object_detector import YOLOXDetector  # YOLOX用クラスをインポート
+from core_auto_app.detector.object_detector import YOLOXDetector  # YOLOX用クラスをインポート
 
 import cv2
 
