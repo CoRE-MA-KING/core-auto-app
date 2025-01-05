@@ -6,8 +6,10 @@ from core_auto_app.application.interfaces import (
     RobotDriver,
 )
 from core_auto_app.domain.messages import Command
-from core_auto_app.detector.object_detector import YOLOXDetector  # YOLOXの物体検出用クラス
-from core_auto_app.detector.tracker_utils import ObjectTracker  # トラッキング用クラス
+from core_auto_app.detector.object_detector import YOLOXDetector
+from core_auto_app.detector.tracker_utils import ObjectTracker
+from core_auto_app.detector.aiming.aiming_target_selector import AimingTargetSelector
+
 import cv2
 
 class Application(ApplicationInterface):
@@ -38,6 +40,11 @@ class Application(ApplicationInterface):
 
         # トラッキング初期化
         self._tracker = ObjectTracker(fps=30.0)
+        # 照準対象を決定するクラス
+        self._target_selector = AimingTargetSelector(image_center=(640, 360))
+
+        # 照準対象を格納する変数
+        self.aiming_target = None  # (cx, cy) を入れる想定
 
     def spin(self):
         # 各カメラ開始
@@ -79,6 +86,13 @@ class Application(ApplicationInterface):
 
                     # 4. バウンディングボックス描画（任意で残す）
                     self._tracker.draw_boxes(color, tracked_objects)
+
+                    # 5. 照準対象の決定
+                    self.aiming_target = self._target_selector.select_target(tracked_objects)
+                    
+                    # 6. 現在の照準対象ID/座標を画面に表示（任意で残す）
+                    self._target_selector.draw_aiming_target_info(color)
+
             else:
                 # デフォルトでカメラA表示
                 color = self._a_camera.get_image()
