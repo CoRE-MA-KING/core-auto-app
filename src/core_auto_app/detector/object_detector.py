@@ -31,7 +31,7 @@ class YOLOXDetector:
         frame: カメラから取得したカラー画像 (BGR形式)
         戻り値: [(x1,y1,x2,y2,score,cls_id), ...] 形式の検出結果リスト
         """
-        img, ratio = preproc(frame, (1280, 704))
+        img, ratio = preproc(frame, (704, 1280))
         img = torch.from_numpy(img).unsqueeze(0)
         img = img.float().to("cuda")
 
