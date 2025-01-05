@@ -1,3 +1,12 @@
 [submodule "3rdparty/librealsense"]
 	path = 3rdparty/librealsense
 	url = https://github.com/IntelRealSense/librealsense.git
+[submodule "3rdparty/YOLOX"]
+	path = 3rdparty/YOLOX
+	url = https://github.com/CoRE-MA-KING/YOLOX.git
+[submodule "3rdparty/onnx-simplifier"]
+	path = 3rdparty/onnx-simplifier
+	url = https://github.com/daquexian/onnx-simplifier.git
+[submodule "3rdparty/torchvision"]
+	path = 3rdparty/torchvision
+	url = https://github.com/pytorch/vision

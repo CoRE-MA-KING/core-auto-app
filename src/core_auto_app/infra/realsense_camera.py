@@ -45,7 +45,15 @@ class RealsenseCamera(Camera):
         self._depth_frame = None
         self._thread = None
 
+        # パイプライン情報取得のための変数
+        self._pipeline_profile = None
+
         print("init realsense camera")
+
+    @property
+    def pipeline_profile(self):
+        """RealSenseのパイプラインプロファイルを返すプロパティ"""
+        return self._pipeline_profile
 
     @property
     def is_running(self):
@@ -56,7 +64,7 @@ class RealsenseCamera(Camera):
         if not self._is_running:
             try:
                 print("start realsense stream")
-                self.pipeline_profile = self._pipeline.start(self._config)
+                self._pipeline_profile = self._pipeline.start(self._config)
                 self._is_running = True
                 # フレーム取得のためにスレッドを開始
                 self._thread = threading.Thread(target=self.update_farames, daemon=True)

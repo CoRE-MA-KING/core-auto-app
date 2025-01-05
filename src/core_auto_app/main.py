@@ -35,12 +35,22 @@ def parse_args() -> argparse.Namespace:
         default=8,
         help="number or filename of camera B",
     )
+    parser.add_argument(
+        "--weight_path",
+        default="/home/nvidia/core_auto_app/models/yolox_s/4_0920_1000pic_best.pth",
+        type=str,
+        help="path to YOLOX weight file (.pth)"
+    )
     args = parser.parse_args()
     return args
 
 
 def run_application(
-    robot_port: str, record_dir: Optional[str], a_camera_name, b_camera_name
+    robot_port: str, 
+    record_dir: Optional[str], 
+    a_camera_name, 
+    b_camera_name,
+    weight_path: str  # 追加
 ) -> None:
     """アプリケーションを実行する"""
 
@@ -52,7 +62,7 @@ def run_application(
     ) as b_camera, CvPresenter() as presenter, SerialRobotDriver(
         robot_port
     ) as robot_driver:
-        app = Application(realsense_camera, a_camera, b_camera, presenter, robot_driver)
+        app = Application(realsense_camera, a_camera, b_camera, presenter, robot_driver, weight_path)
         app.spin()
 
 
@@ -63,6 +73,7 @@ def main():
         robot_port=args.robot_port,
         a_camera_name=args.a_camera_name,
         b_camera_name=args.b_camera_name,
+        weight_path=args.weight_path
     )
 
 
