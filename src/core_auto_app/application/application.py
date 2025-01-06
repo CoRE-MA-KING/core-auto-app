@@ -81,16 +81,13 @@ class Application(ApplicationInterface):
                     tracked_objects = self._tracker.update(detections)
                     # tracked_objects: [(x1, y1, x2, y2, track_id), ...]
 
-                    # 3. 物体の中心座標を表示（ID付き）
-                    self._draw_center_positions(color, tracked_objects)
-
-                    # 4. バウンディングボックス描画（任意で残す）
+                    # 3. バウンディングボックス描画（任意で残す）
                     self._tracker.draw_boxes(color, tracked_objects)
 
-                    # 5. 照準対象の決定
+                    # 4. 照準対象の決定
                     self.aiming_target = self._target_selector.select_target(tracked_objects)
                     
-                    # 6. 現在の照準対象ID/座標を画面に表示（任意で残す）
+                    # 5. 現在の照準対象ID/座標を画面に表示（任意で残す）
                     self._target_selector.draw_aiming_target_info(color)
 
             else:
@@ -112,23 +109,3 @@ class Application(ApplicationInterface):
         self._realsense_camera.close()
         self._a_camera.close()
         self._b_camera.close()
-
-    def _draw_center_positions(self, frame, tracked_objects):
-        """
-        トラッキングされた物体の中心ピクセル座標(cx, cy)を画面に描画する。
-        Args:
-            frame: BGRカラー画像
-            tracked_objects: [(x1, y1, x2, y2, track_id), ...]
-        """
-        for (x1, y1, x2, y2, t_id) in tracked_objects:
-            # 中心座標
-            cx = (x1 + x2) // 2
-            cy = (y1 + y2) // 2
-
-            # テキスト表示 (IDと中心座標)
-            txt = f"ID:{t_id} center=({cx},{cy})"
-            cv2.putText(frame, txt, (x1, max(y1 - 10, 0)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,255,0), 2)
-
-            # 中心点にマークをつける例 (小さな円)
-            cv2.circle(frame, (cx, cy), 3, (0,255,255), -1)
