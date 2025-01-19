@@ -40,6 +40,9 @@ class SerialRobotDriver(RobotDriver):
         # デフォルト状態をセット
         self._robot_state = RobotState()
 
+        # 送受信に排他ロックを使う
+        # self._serial_lock = Lock()
+
         # スレッド開始
         self._is_closed = False
         self._thread = Thread(target=self._update_robot_state)
@@ -77,12 +80,6 @@ class SerialRobotDriver(RobotDriver):
                 buffer = self._serial.readline()
                 print(f"read state: {buffer}")
 
-                # マイコンに送信
-                # send_buffer = "640,360,0,0\n"
-                # self._serial.write(send_buffer.encode())
-                # sleep(2)  # これはマイコン側での問題なのでいらなさそう？
-                # print(f"send data: {send_buffer}")
-
             except Exception as err:
                 print(err)
                 self._serial.close()
@@ -95,7 +92,6 @@ class SerialRobotDriver(RobotDriver):
                 str_data = buffer.decode("ascii")
 
             except UnicodeDecodeError as err:
-                # ここでvideo_id=0に強制してもいいかも
                 print(err)
                 continue
             if "\n" not in str_data:
@@ -118,14 +114,13 @@ class SerialRobotDriver(RobotDriver):
                     record_video=bool((int(str_data[6]) >> 1) & 0b00000001),  # 録画フラグ
                     ready_to_fire=bool((int(str_data[6]) >> 0) & 0b00000001),  # 射出可否フラグ
                     reserved=int(str_data[7])  # 未使用
+                    # 状態を更新
+                self._robot_state = robot_state
                 )
             except ValueError as err:
-                # print("パースできず")
+                print("Could not parse")
                 print(err)
                 continue
-
-            # 状態を更新
-            self._robot_state = robot_state
 
     def get_robot_state(self) -> RobotState:
         """最新のロボットの状態を返す"""
