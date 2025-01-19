@@ -1,5 +1,5 @@
 from copy import deepcopy
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 from typing import Optional
 
@@ -41,7 +41,7 @@ class SerialRobotDriver(RobotDriver):
         self._robot_state = RobotState()
 
         # 送受信に排他ロックを使う
-        # self._serial_lock = Lock()
+        self._serial_lock = Lock()
 
         # スレッド開始
         self._is_closed = False
@@ -76,8 +76,9 @@ class SerialRobotDriver(RobotDriver):
 
             # 改行コード"\n"まで読む
             try:
-                # buffer = "2,2,3,4,5,1,4,0"  # テスト時のダミー
-                buffer = self._serial.readline()
+                with self._serial_lock:
+                    # buffer = "2,2,3,4,5,1,4,0"  # テスト時のダミー
+                    buffer = self._serial.readline()
                 print(f"read state: {buffer}")
 
             except Exception as err:
@@ -114,9 +115,11 @@ class SerialRobotDriver(RobotDriver):
                     record_video=bool((int(str_data[6]) >> 1) & 0b00000001),  # 録画フラグ
                     ready_to_fire=bool((int(str_data[6]) >> 0) & 0b00000001),  # 射出可否フラグ
                     reserved=int(str_data[7])  # 未使用
-                    # 状態を更新
-                self._robot_state = robot_state
                 )
+
+                # 状態を更新
+                self._robot_state = robot_state
+
             except ValueError as err:
                 print("Could not parse")
                 print(err)
@@ -125,6 +128,20 @@ class SerialRobotDriver(RobotDriver):
     def get_robot_state(self) -> RobotState:
         """最新のロボットの状態を返す"""
         return deepcopy(self._robot_state)
+
+    def send_data(self, message: str) -> None:
+        """
+        ユーザが任意のタイミングで呼び出す送信用メソッド
+        Args:
+            message: 送信する文字列(末尾に"\n"などをつけるかは呼び出し側で決める)
+        """
+        if not self._serial:
+            return
+        with self._serial_lock:
+            try:
+                self._serial.write(message.encode())
+            except Exception as e:
+                print(f"Serial write error: {e}")
 
     def close(self):
         print("closing robot driver")
