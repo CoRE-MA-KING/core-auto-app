@@ -79,13 +79,16 @@ class Application(ApplicationInterface):
                 # 5. 現在の照準対象ID/座標を画面に表示（任意で残す）
                 self._target_selector.draw_aiming_target_info(color)
 
-            if self.aiming_target is not None:
-                (cx, cy) = self.aiming_target
-                distance = 0
-                tmp = 0
-                send_str = f"{cx},{cy},{distance},{tmp}\n"
-                self._robot_driver.send_data(send_str)
 
+            target_depth = 0
+            target_tmp = 0
+            (target_x, target_y) = (640, 360)
+
+            if self.aiming_target is not None:
+                (target_x, target_y) = self.aiming_target
+
+            send_str = f"{target_x},{target_y},{target_depth},{target_tmp}\n"
+            self._robot_driver.send_data(send_str)
 
             # 描画 (ここの指定によって画像の質が変わりそう)
             self._presenter.show(color, robot_state)
