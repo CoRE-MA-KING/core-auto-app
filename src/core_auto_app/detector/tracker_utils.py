@@ -2,7 +2,7 @@ from motpy import Detection, MultiObjectTracker
 import cv2
 
 class ObjectTracker:
-    def __init__(self, fps=30.0):
+    def __init__(self, fps=5.6):
         """
         fps: カメラ映像のフレームレートを想定
              dt = 1/fps で時間刻みを設定している

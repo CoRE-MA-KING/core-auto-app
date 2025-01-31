@@ -8,6 +8,7 @@ from core_auto_app.domain.messages import Command
 from core_auto_app.detector.object_detector import YOLOXDetector
 from core_auto_app.detector.tracker_utils import ObjectTracker
 from core_auto_app.detector.aiming.aiming_target_selector import AimingTargetSelector
+import time
 
 import cv2
 
@@ -45,6 +46,10 @@ class Application(ApplicationInterface):
         # カメラ開始
         self._realsense_camera.start()
 
+        # フレーム計測開始
+        prev_time = time.time()
+        frame_count = 0
+
         while True:
             # ロボットの状態取得
             robot_state = self._robot_driver.get_robot_state()
@@ -66,6 +71,8 @@ class Application(ApplicationInterface):
                 detections = self._detector.predict(color)
                 # detections: [(x1, y1, x2, y2, score, cls_id), ...]
 
+                # self._detector.draw_boxes(color,detections)
+
                 # 2. トラッキング
                 tracked_objects = self._tracker.update(detections)
                 # tracked_objects: [(x1, y1, x2, y2, track_id), ...]
@@ -79,6 +86,16 @@ class Application(ApplicationInterface):
                 # 5. 現在の照準対象ID/座標を画面に表示（任意で残す）
                 self._target_selector.draw_aiming_target_info(color)
 
+
+            # フレーム計測終了
+            frame_count += 1
+            now = time.time()
+            elapsed = now - prev_time
+            if elapsed >= 1.0:  # 1秒経過
+                fps = frame_count / elapsed
+                print(f"Current FPS: {fps:.2f}")
+                frame_count = 0
+                prev_time = now
 
             target_depth = 0
             target_tmp = 0
