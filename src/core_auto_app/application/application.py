@@ -105,7 +105,7 @@ class Application(ApplicationInterface):
                 (target_x, target_y) = self.aiming_target
 
             send_str = f"{target_x},{target_y},{target_depth},{target_tmp}\n"
-            self._robot_driver.send_data(send_str)
+            self._robot_driver.set_send_data(send_str)  # 送信する文字列をセット（実際の送信はSerialRobotDriverのスレッド内）
 
             # 描画 (ここの指定によって画像の質が変わりそう)
             self._presenter.show(color, robot_state)
