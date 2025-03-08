@@ -1,5 +1,5 @@
 from copy import deepcopy
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 from typing import Optional
 
@@ -7,7 +7,6 @@ import serial
 
 from core_auto_app.application.interfaces import RobotDriver
 from core_auto_app.domain.messages import RobotStateId, RobotState
-
 
 class SerialRobotDriver(RobotDriver):
     """マイコンと通信しロボットを制御するクラス
@@ -22,34 +21,32 @@ class SerialRobotDriver(RobotDriver):
         self,
         port,
         baudrate=115200,
-        # baudrate=921600,
         parity=serial.PARITY_NONE,
-        # parity=serial.PARITY_EVEN,
         stopbits=serial.STOPBITS_ONE,
-        timeout=1.0,
+        timeout=0.01,  # 10ms timeout
     ):
-        # シリアルポートを開く
         self._port = port
         self._baudrate = baudrate
         self._parity = parity
         self._stopbits = stopbits
         self._timeout = timeout
-        self._port: Optional[serial.Serial]
+        self._serial: Optional[serial.Serial] = None
         self._open_serial_port()
 
-        # デフォルト状態をセット
+        # 初期ロボット状態（排他制御用ロック付き）
+        self._state_lock = Lock()
         self._robot_state = RobotState()
 
-        # スレッド開始
+        # 送信用の値とそのロック
+        self._send_lock = Lock()
+        self._send_values = (0, 0, 0)  # (val1, val2, val3)
+
         self._is_closed = False
-        self._thread = Thread(target=self._update_robot_state)
+        self._thread = Thread(target=self._update_robot_state, daemon=True)
         self._thread.start()
 
     def _open_serial_port(self) -> None:
-        """シリアルポートを開く
-
-        開けなかった場合はNoneをセットする
-        """
+        """シリアルポートを開く"""
         try:
             self._serial = serial.Serial(
                 port=self._port,
@@ -63,73 +60,79 @@ class SerialRobotDriver(RobotDriver):
             self._serial = None
 
     def _update_robot_state(self) -> None:
-        """ロボットの状態を取得してメンバ変数を更新する"""
+        """10ms間隔でシリアル通信の受信と送信を実施する"""
         while not self._is_closed:
-            # シリアルポートが開いていなければ1秒待って開く
             if not self._serial:
-                sleep(1)
+                sleep(0.01)
                 self._open_serial_port()
                 continue
 
-            # 改行コード"\n"まで読む
             try:
-                # buffer = "2,2,3,4,5,1,4,0"  # テスト時のダミー
                 buffer = self._serial.readline()
                 print(f"read state: {buffer}")
-
-                # マイコンに送信
-                # send_buffer = "640,360,0,0\n"
-                # self._serial.write(send_buffer.encode())
-                # sleep(2)  # これはマイコン側での問題なのでいらなさそう？
-                # print(f"send data: {send_buffer}")
-
             except Exception as err:
                 print(err)
-                self._serial.close()
+                if self._serial:
+                    self._serial.close()
                 self._serial = None
                 continue
 
-            # タイムアウトが発生した場合、改行コード"\n"が含まれない
             try:
-                # str_data = buffer  # テスト時のダミー
                 str_data = buffer.decode("ascii")
-
             except UnicodeDecodeError as err:
-                # ここでvideo_id=0に強制してもいいかも
                 print(err)
                 continue
-            if "\n" not in str_data:
-                continue
 
-            # バッファーをパースする
+            if "\n" in str_data:
+                try:
+                    str_data = str_data.strip()
+                    parts = str_data.split(",")
+                    if len(parts) < 8:
+                        # 必要な項目が揃っていなければスキップ
+                        continue
+                    new_state = RobotState(
+                        state_id=RobotStateId(int(parts[0])),
+                        pitch_deg=float(parts[1]) / 10.0,
+                        muzzle_velocity=float(parts[2]) / 1000,
+                        reloaded_left_disks=int(parts[3]),
+                        reloaded_right_disks=int(parts[4]),
+                        video_id=int(parts[5]),
+                        auto_aim=bool((int(parts[6]) >> 2) & 0b00000001),
+                        record_video=bool((int(parts[6]) >> 1) & 0b00000001),
+                        ready_to_fire=bool((int(parts[6]) >> 0) & 0b00000001),
+                        reserved=int(parts[7])
+                    )
+                    with self._state_lock:
+                        self._robot_state = new_state
+                except ValueError as err:
+                    print(err)
+                    continue
+
+            # 受信後すぐに送信処理を実施（排他制御）
+            with self._send_lock:
+                val1, val2, val3 = self._send_values
+            send_str = f"{val1},{val2},{val3}\n"
             try:
-                str_data = str_data.replace("\n", "")
-                str_data = str_data.split(",")
-
-                robot_state = RobotState(
-                    state_id=RobotStateId(int(str_data[0])),
-                    pitch_deg=float(str_data[1]) / 10.0,  # 1/10deg
-                    muzzle_velocity=float(str_data[2]) / 1000,  # m/s
-                    reloaded_left_disks=int(str_data[3]),  # 枚
-                    reloaded_right_disks=int(str_data[4]),  # 枚
-                    video_id=int(str_data[5]),  # カメラID
-                    # "str_data[6]"は複数のflagをまとめたバイト
-                    auto_aim=bool((int(str_data[6]) >> 2) & 0b00000001),  # 自動照準フラグ
-                    record_video=bool((int(str_data[6]) >> 1) & 0b00000001),  # 録画フラグ
-                    ready_to_fire=bool((int(str_data[6]) >> 0) & 0b00000001),  # 射出可否フラグ
-                    reserved=int(str_data[7])  # 未使用
-                )
-            except ValueError as err:
-                # print("パースできず")
+                self._serial.write(send_str.encode())
+                print(f"sent data: {send_str.strip()}")
+            except Exception as err:
                 print(err)
+                if self._serial:
+                    self._serial.close()
+                self._serial = None
                 continue
 
-            # 状態を更新
-            self._robot_state = robot_state
+            sleep(0.01)  # 10ms間隔
+
+    def set_send_values(self, val1: int, val2: int, val3: int) -> None:
+        """マイコンへ送信する整数値を更新する"""
+        with self._send_lock:
+            self._send_values = (val1, val2, val3)
 
     def get_robot_state(self) -> RobotState:
         """最新のロボットの状態を返す"""
-        return deepcopy(self._robot_state)
+        with self._state_lock:
+            return deepcopy(self._robot_state)
 
     def close(self):
         print("closing robot driver")

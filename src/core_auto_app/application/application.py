@@ -70,7 +70,6 @@ class Application(ApplicationInterface):
                 detection_results = self._realsense_camera.get_detection_results()
                 if detection_results is not None:
                     self._realsense_camera.draw_detection_results(color, detection_results)
-
             else:
                 # デフォルトでカメラA表示
                 color = self._a_camera.get_image()
@@ -78,12 +77,14 @@ class Application(ApplicationInterface):
             # Realsenseによる最新の照準対象を取得
             self.aiming_target = self._realsense_camera.get_aiming_target()
             if self.aiming_target is None:
-                self.aiming_target = (0, 0) # 照準対象がいない場合は(0, 0)を送信
+                self.aiming_target = (0, 0)  # 照準対象がいない場合は(0, 0)を送信
+
             self.draw_aiming_target_info(color, self.aiming_target)
-            # ここでマイコンに送信する整数値を設定する（self.aiming_target[0],self.aiming_target[1],0)
+            # マイコンに送信する値を更新（形式: "%d,%d,%d\n"）
+            self._robot_driver.set_send_values(self.aiming_target[0], self.aiming_target[1], 0)
 
             # フレーム計測
-            if(color is not None):
+            if color is not None:
                 frame_hash = hash(color.tobytes())  # フレームの簡易ハッシュを計算
                 if frame_hash != prev_frame_hash:
                     frame_count += 1
