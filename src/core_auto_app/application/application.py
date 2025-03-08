@@ -57,6 +57,7 @@ class Application(ApplicationInterface):
         prev_time = time.time()
         frame_count = 0
         fps = 0.0  # 初期値を設定
+        prev_frame_hash = None
 
         while True:
             # ロボットの状態取得
@@ -104,8 +105,13 @@ class Application(ApplicationInterface):
             if color is None:
                 color = self._a_camera.get_image()
 
-            # フレーム計測終了#
-            frame_count += 1
+            # フレーム計測
+            frame_hash = hash(color.tobytes())  # フレームの簡易ハッシュを計算
+            # 前回のフレームと異なる場合のみ、フレームカウントを増やす
+            if frame_hash != prev_frame_hash:
+                frame_count += 1
+                prev_frame_hash = frame_hash
+
             now = time.time()
             elapsed = now - prev_time
             if elapsed >= 1.0:  # 1秒経過するごとにFPSを算出
