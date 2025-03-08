@@ -6,10 +6,10 @@ from yolox.exp import get_exp
 from yolox.utils import postprocess
 
 class YOLOXDetector:
-    def __init__(self, model_path: str, score_thr: float = 0.8, nmsthre: float = 0.45):
+    def __init__(self, model_path: str, score_thr: float = 0.99, nmsthre: float = 0.45):
         """
         model_path: 学習済みモデル(pthファイル)へのパス
-        score_thr: バウンディングボックスを表示するかどうかを決めるスコアしきい値
+        score_thr: 物体を検出する閾値
         nmsthre: NMS(重複を減らすための処理)のしきい値
         """
         self.exp = get_exp(None, "yolox-s")
