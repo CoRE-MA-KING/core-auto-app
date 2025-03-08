@@ -33,7 +33,7 @@ class Application(ApplicationInterface):
         self._is_recording = False
 
         # Application側では、Realsenseで計算された検出結果を参照する
-        self.aiming_target = None  # (cx, cy) を入れる想定
+        self.aiming_target = (0, 0)  # (cx, cy) を入れる想定
 
     def spin(self):
         # 各カメラ開始
@@ -77,8 +77,10 @@ class Application(ApplicationInterface):
 
             # Realsenseによる最新の照準対象を取得
             self.aiming_target = self._realsense_camera.get_aiming_target()
-            if self.aiming_target is not None:
-                self.draw_aiming_target_info(color, self.aiming_target)
+            if self.aiming_target is None:
+                self.aiming_target = (0, 0) # 照準対象がいない場合は(0, 0)を送信
+            self.draw_aiming_target_info(color, self.aiming_target)
+            # ここでマイコンに送信する整数値を設定する（self.aiming_target[0],self.aiming_target[1],0)
 
             # フレーム計測
             if(color is not None):
