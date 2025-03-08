@@ -26,6 +26,10 @@ class YOLOXDetector:
         self.nmsthre = nmsthre
         self.class_names = ["damage_panel"]  # クラス名
 
+        # 検出対象の縦か横幅の検出閾値を設定
+        self.size_x_thr = 100
+        self.size_y_thr = 100
+
     def predict(self, frame: np.ndarray):
         """
         frame: カメラから取得したカラー画像 (BGR形式)
@@ -55,6 +59,9 @@ class YOLOXDetector:
         results = []
         for bbox, score, cls_id in zip(bboxes, scores, classes):
             x1, y1, x2, y2 = bbox.numpy().astype(int)
+            # 物体の幅または高さが50ピクセル未満なら除外
+            if (x2 - x1) < self.size_x_thr or (y2 - y1) < self.size_y_thr:
+                continue
             results.append((x1, y1, x2, y2, score.item(), cls_id))
         return results
 
