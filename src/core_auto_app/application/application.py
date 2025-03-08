@@ -9,6 +9,7 @@ from core_auto_app.domain.messages import Command
 from core_auto_app.detector.object_detector import YOLOXDetector
 from core_auto_app.detector.tracker_utils import ObjectTracker
 from core_auto_app.detector.aiming.aiming_target_selector import AimingTargetSelector
+import time
 
 import cv2
 
@@ -52,6 +53,11 @@ class Application(ApplicationInterface):
         self._b_camera.start()
         self._realsense_camera.start()
 
+        # フレーム計測開始
+        prev_time = time.time()
+        frame_count = 0
+        fps = 0.0  # 初期値を設定
+
         while True:
             # ロボットの状態取得
             robot_state = self._robot_driver.get_robot_state()
@@ -86,7 +92,7 @@ class Application(ApplicationInterface):
 
                     # 4. 照準対象の決定
                     self.aiming_target = self._target_selector.select_target(tracked_objects)
-                    
+
                     # 5. 現在の照準対象ID/座標を画面に表示（任意で残す）
                     self._target_selector.draw_aiming_target_info(color)
 
@@ -97,6 +103,21 @@ class Application(ApplicationInterface):
             # フレームが取得できなかった場合
             if color is None:
                 color = self._a_camera.get_image()
+
+            # フレーム計測終了#
+            frame_count += 1
+            now = time.time()
+            elapsed = now - prev_time
+            if elapsed >= 1.0:  # 1秒経過するごとにFPSを算出
+                fps = frame_count / elapsed
+                frame_count = 0
+                prev_time = now
+                # print(f"Current FPS: {fps:.2f}")  // コンソールに表示
+
+            # FPS値を画面の左上(20,680)に表示 
+            # cv2.putText(color, f"FPS {fps:.2f})", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+            fps_disp = f"FPS {fps:.2f}"
+            cv2.putText(color, fps_disp, (20, 680), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
             # 描画 (ここの指定によって画像の質が変わりそう)
             self._presenter.show(color, robot_state)
