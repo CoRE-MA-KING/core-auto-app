@@ -70,26 +70,26 @@ class Application(ApplicationInterface):
                 detection_results = self._realsense_camera.get_detection_results()
                 if detection_results is not None:
                     self._realsense_camera.draw_detection_results(color, detection_results)
-                # 最新の照準対象も取得
-                self.aiming_target = self._realsense_camera.get_aiming_target()
+
             else:
                 # デフォルトでカメラA表示
                 color = self._a_camera.get_image()
 
-            # フレームが取得できなかった場合
-            if color is None:
-                color = self._a_camera.get_image()
+            # Realsenseによる最新の照準対象を取得
+            self.aiming_target = self._realsense_camera.get_aiming_target()
+            if self.aiming_target is not None:
+                self.draw_aiming_target_info(color, self.aiming_target)
 
             # フレーム計測
-            frame_hash = hash(color.tobytes())  # フレームの簡易ハッシュを計算
-            # 前回のフレームと異なる場合のみ、フレームカウントを増やす
-            if frame_hash != prev_frame_hash:
-                frame_count += 1
-                prev_frame_hash = frame_hash
+            if(color is not None):
+                frame_hash = hash(color.tobytes())  # フレームの簡易ハッシュを計算
+                if frame_hash != prev_frame_hash:
+                    frame_count += 1
+                    prev_frame_hash = frame_hash
 
             now = time.time()
             elapsed = now - prev_time
-            if elapsed >= 1.0:  # 1秒経過するごとにFPSを算出
+            if elapsed >= 1.0 and elapsed != 0:  # 1秒経過するごとにFPSを算出
                 fps = frame_count / elapsed
                 frame_count = 0
                 prev_time = now
@@ -110,3 +110,12 @@ class Application(ApplicationInterface):
         self._realsense_camera.close()
         self._a_camera.close()
         self._b_camera.close()
+
+    def draw_aiming_target_info(self, frame, aiming_target):
+        """
+        現在の照準対象IDと座標を画面左上に描画
+        """
+        (cx, cy) = aiming_target
+        txt = f"Target: ({cx},{cy})"
+        # 左上(20,50)に表示 (お好みで位置を調整)
+        cv2.putText(frame, txt, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)

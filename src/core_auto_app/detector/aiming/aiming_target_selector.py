@@ -76,15 +76,3 @@ class AimingTargetSelector:
         self.aiming_target = (chosen['cx'], chosen['cy'])
 
         return self.aiming_target
-
-    def draw_aiming_target_info(self, frame):
-        """
-        現在の照準対象IDと座標を画面左上に描画
-        """
-        if self.aiming_target is not None and self.current_target_id is not None:
-            (cx, cy) = self.aiming_target
-            target_id = self.current_target_id
-            txt = f"Target ID:{target_id} center=({cx},{cy})"
-            # 左上(20,50)に表示 (お好みで位置を調整)
-            cv2.putText(frame, txt, (20, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
