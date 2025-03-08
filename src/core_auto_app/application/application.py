@@ -49,6 +49,7 @@ class Application(ApplicationInterface):
         # フレーム計測開始
         prev_time = time.time()
         frame_count = 0
+        fps = 0.0  # 初期値を設定
 
         while True:
             # ロボットの状態取得
@@ -80,12 +81,6 @@ class Application(ApplicationInterface):
                 # 3. バウンディングボックス描画（任意で残す）
                 self._tracker.draw_boxes(color, tracked_objects)
 
-                # 4. 照準対象の決定
-                self.aiming_target = self._target_selector.select_target(tracked_objects)
-
-                # 5. 現在の照準対象ID/座標を画面に表示（任意で残す）
-                self._target_selector.draw_aiming_target_info(color)
-
 
             # フレーム計測終了
             frame_count += 1
@@ -106,6 +101,13 @@ class Application(ApplicationInterface):
 
             send_str = f"{target_x},{target_y},{target_depth},{target_tmp}\n"
             self._robot_driver.set_send_data(send_str)  # 送信する文字列をセット（実際の送信はSerialRobotDriverのスレッド内）
+
+
+            # 左上(20,680)に表示 (お好みで位置を調整)
+            # cv2.putText(color, f"FPS {fps:.2f})", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+            txt = f"FPS {fps:.2f}"
+            cv2.putText(color, txt, (20, 680), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
 
             # 描画 (ここの指定によって画像の質が変わりそう)
             self._presenter.show(color, robot_state)

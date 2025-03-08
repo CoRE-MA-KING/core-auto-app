@@ -19,5 +19,6 @@ xrandr --output "$monitor" --mode 1280x720
 # xrandr --output "$monitor" --mode 1920x1080
 
 # 仮想シリアルポートを使用しないアプリケーションの起動
-core_auto_app --robot_port=/dev/ttyUSB0
+# core_auto_app --robot_port=/dev/ttyUSB0
+core_auto_app --robot_port=/dev/ttyACM0
 # core_auto_app
