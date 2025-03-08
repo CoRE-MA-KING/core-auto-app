@@ -28,6 +28,8 @@ class UsbCamera(ColorCamera):
             self._capture = cv2.VideoCapture(self._filename)
             self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            # バッファサイズを1に設定することで、古いフレームを残さず常に最新のフレームのみを取得
+            self._capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
             self._is_running = True
             # フレーム取得スレッドの開始
             self._thread = threading.Thread(target=self._update_frames, daemon=True)

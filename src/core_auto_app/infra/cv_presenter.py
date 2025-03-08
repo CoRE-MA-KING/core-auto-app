@@ -116,7 +116,7 @@ class CvPresenter(Presenter):
         cv2.imshow("display", image)
 
     def get_ui_command(self) -> Command:
-        key = cv2.waitKey(10)
+        key = cv2.waitKey(1)
 
         if key == ord("q"):
             return Command.QUIT
