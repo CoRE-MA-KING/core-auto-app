@@ -77,7 +77,7 @@ class Application(ApplicationInterface):
             # Realsenseによる最新の照準対象を取得
             self.aiming_target = self._realsense_camera.get_aiming_target()
             if self.aiming_target is None:
-                self.aiming_target = (0, 0)  # 照準対象がいない場合は(0, 0)を送信
+                self.aiming_target = (640, 360)  # 照準対象がいない場合は(0, 0)を送信
 
             self.draw_aiming_target_info(color, self.aiming_target)
             # マイコンに送信する値を更新（形式: "%d,%d,%d\n"）
