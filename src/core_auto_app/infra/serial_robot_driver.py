@@ -39,7 +39,7 @@ class SerialRobotDriver(RobotDriver):
 
         # 送信用の値とそのロック
         self._send_lock = Lock()
-        self._send_values = (0, 0, 0)  # (val1, val2, val3)
+        self._send_values = (0, 0, 0, 0)  # (val1, val2, val3, val4)
 
         self._is_closed = False
         self._thread = Thread(target=self._update_robot_state, daemon=True)
@@ -110,8 +110,8 @@ class SerialRobotDriver(RobotDriver):
 
             # 受信後すぐに送信処理を実施（排他制御）
             with self._send_lock:
-                val1, val2, val3 = self._send_values
-            send_str = f"{val1},{val2},{val3}\n"
+                val1, val2, val3, val4 = self._send_values
+            send_str = f"{val1},{val2},{val3},{val4}\n"
             try:
                 self._serial.write(send_str.encode())
                 print(f"sent data: {send_str.strip()}")
@@ -124,10 +124,10 @@ class SerialRobotDriver(RobotDriver):
 
             sleep(0.01)  # 10ms間隔
 
-    def set_send_values(self, val1: int, val2: int, val3: int) -> None:
+    def set_send_values(self, val1: int, val2: int, val3: int, val4:int) -> None:
         """マイコンへ送信する整数値を更新する"""
         with self._send_lock:
-            self._send_values = (val1, val2, val3)
+            self._send_values = (val1, val2, val3, val4)
 
     def get_robot_state(self) -> RobotState:
         """最新のロボットの状態を返す"""

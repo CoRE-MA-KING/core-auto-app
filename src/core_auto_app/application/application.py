@@ -80,8 +80,8 @@ class Application(ApplicationInterface):
                 self.aiming_target = (640, 360)  # 照準対象がいない場合は(0, 0)を送信
 
             self.draw_aiming_target_info(color, self.aiming_target)
-            # マイコンに送信する値を更新（形式: "%d,%d,%d\n"）
-            self._robot_driver.set_send_values(self.aiming_target[0], self.aiming_target[1], 0)
+            # マイコンに送信する値を更新（形式: "%d,%d,%d,%d\n"）
+            self._robot_driver.set_send_values(self.aiming_target[0], self.aiming_target[1], 0, 0)
 
             # フレーム計測
             if color is not None:
