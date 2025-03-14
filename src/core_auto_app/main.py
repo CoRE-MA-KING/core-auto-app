@@ -27,13 +27,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--a_camera_name",
-        default=6,
-        help="number or filename of camera A",
+        default="/dev/camera_front",
+        help="device file (symlink) of camera A (front camera)",
     )
     parser.add_argument(
         "--b_camera_name",
-        default=8,
-        help="number or filename of camera B",
+        default="/dev/camera_back",
+        help="device file (symlink) of camera B (back camera)",
     )
     parser.add_argument(
         "--weight_path",
@@ -55,14 +55,14 @@ def run_application(
     """アプリケーションを実行する"""
 
     # 'record_dir'が存在しないパスだったときにエラーになるかも
-    with RealsenseCamera(record_dir) as realsense_camera, UsbCamera(
+    with RealsenseCamera(record_dir, weight_path) as realsense_camera, UsbCamera(
         a_camera_name
     ) as a_camera, UsbCamera(
         b_camera_name
     ) as b_camera, CvPresenter() as presenter, SerialRobotDriver(
         robot_port
     ) as robot_driver:
-        app = Application(realsense_camera, a_camera, b_camera, presenter, robot_driver, weight_path)
+        app = Application(realsense_camera, a_camera, b_camera, presenter, robot_driver)
         app.spin()
 
 

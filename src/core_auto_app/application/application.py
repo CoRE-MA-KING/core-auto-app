@@ -6,10 +6,7 @@ from core_auto_app.application.interfaces import (
     RobotDriver,
 )
 from core_auto_app.domain.messages import Command
-from core_auto_app.detector.object_detector import YOLOXDetector
-from core_auto_app.detector.tracker_utils import ObjectTracker
-from core_auto_app.detector.aiming.aiming_target_selector import AimingTargetSelector
-
+import time
 import cv2
 
 class Application(ApplicationInterface):
@@ -25,7 +22,7 @@ class Application(ApplicationInterface):
         b_camera: ColorCamera,
         presenter: Presenter,
         robot_driver: RobotDriver,
-        weight_path: str  # コマンドライン引数で渡すモデルファイルパス
+        # 重い検出処理はrealsense_camera側で行うので、ここでは重みの初期化は不要
     ):
         self._realsense_camera = realsense_camera
         self._a_camera = a_camera
@@ -35,22 +32,20 @@ class Application(ApplicationInterface):
 
         self._is_recording = False
 
-        # YOLOXの物体検出初期化
-        self._detector = YOLOXDetector(weight_path, score_thr=0.8, nmsthre=0.45)
-
-        # トラッキング初期化
-        self._tracker = ObjectTracker(fps=30.0)
-        # 照準対象を決定するクラス
-        self._target_selector = AimingTargetSelector(image_center=(640, 360))
-
-        # 照準対象を格納する変数
-        self.aiming_target = None  # (cx, cy) を入れる想定
+        # Application側では、Realsenseで計算された検出結果を参照する
+        self.aiming_target = (0, 0)  # (cx, cy) を入れる想定
 
     def spin(self):
         # 各カメラ開始
         self._a_camera.start()
         self._b_camera.start()
         self._realsense_camera.start()
+
+        # フレーム計測開始
+        prev_time = time.time()
+        frame_count = 0
+        fps = 0.0  # 初期値を設定
+        prev_frame_hash = None
 
         while True:
             # ロボットの状態取得
@@ -71,34 +66,43 @@ class Application(ApplicationInterface):
                 color = self._b_camera.get_image()
             elif robot_state.video_id == 2:
                 color, depth = self._realsense_camera.get_images()
-                # ここで物体検出＆トラッキング実施
-                if color is not None:
-                    # 1. 物体検出
-                    detections = self._detector.predict(color)
-                    # detections: [(x1, y1, x2, y2, score, cls_id), ...]
-
-                    # 2. トラッキング
-                    tracked_objects = self._tracker.update(detections)
-                    # tracked_objects: [(x1, y1, x2, y2, track_id), ...]
-
-                    # 3. バウンディングボックス描画（任意で残す）
-                    self._tracker.draw_boxes(color, tracked_objects)
-
-                    # 4. 照準対象の決定
-                    self.aiming_target = self._target_selector.select_target(tracked_objects)
-                    
-                    # 5. 現在の照準対象ID/座標を画面に表示（任意で残す）
-                    self._target_selector.draw_aiming_target_info(color)
-
+                # Realsense側で常時検出している結果を取得して描画する
+                detection_results = self._realsense_camera.get_detection_results()
+                if detection_results is not None:
+                    self._realsense_camera.draw_detection_results(color, detection_results)
             else:
                 # デフォルトでカメラA表示
                 color = self._a_camera.get_image()
 
-            # フレームが取得できなかった場合
-            if color is None:
-                color = self._a_camera.get_image()
+            # Realsenseによる最新の照準対象を取得
+            self.aiming_target = self._realsense_camera.get_aiming_target()
+            if self.aiming_target is None:
+                self.aiming_target = (640, 360)  # 照準対象がいない場合は(0, 0)を送信
 
-            # 描画 (ここの指定によって画像の質が変わりそう)
+            self.draw_aiming_target_info(color, self.aiming_target)
+            # マイコンに送信する値を更新（形式: "%d,%d,%d,%d\n"）
+            self._robot_driver.set_send_values(self.aiming_target[0], self.aiming_target[1], 0, 0)
+
+            # フレーム計測
+            if color is not None:
+                frame_hash = hash(color.tobytes())  # フレームの簡易ハッシュを計算
+                if frame_hash != prev_frame_hash:
+                    frame_count += 1
+                    prev_frame_hash = frame_hash
+
+            now = time.time()
+            elapsed = now - prev_time
+            if elapsed >= 1.0 and elapsed != 0:  # 1秒経過するごとにFPSを算出
+                fps = frame_count / elapsed
+                frame_count = 0
+                prev_time = now
+                # print(f"Current FPS: {fps:.2f}")
+
+            # FPS値を画面の左上(20,680)に表示 
+            fps_disp = f"FPS {fps:.2f}"
+            cv2.putText(color, fps_disp, (20, 680), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
+            # 描画
             self._presenter.show(color, robot_state)
             command = self._presenter.get_ui_command()
 
@@ -109,3 +113,12 @@ class Application(ApplicationInterface):
         self._realsense_camera.close()
         self._a_camera.close()
         self._b_camera.close()
+
+    def draw_aiming_target_info(self, frame, aiming_target):
+        """
+        現在の照準対象IDと座標を画面左上に描画
+        """
+        (cx, cy) = aiming_target
+        txt = f"Target: ({cx},{cy})"
+        # 左上(20,50)に表示 (お好みで位置を調整)
+        cv2.putText(frame, txt, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)

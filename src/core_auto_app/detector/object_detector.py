@@ -6,10 +6,10 @@ from yolox.exp import get_exp
 from yolox.utils import postprocess
 
 class YOLOXDetector:
-    def __init__(self, model_path: str, score_thr: float = 0.8, nmsthre: float = 0.45):
+    def __init__(self, model_path: str, score_thr: float = 0.99, nmsthre: float = 0.45):
         """
         model_path: 学習済みモデル(pthファイル)へのパス
-        score_thr: バウンディングボックスを表示するかどうかを決めるスコアしきい値
+        score_thr: 物体を検出する閾値
         nmsthre: NMS(重複を減らすための処理)のしきい値
         """
         self.exp = get_exp(None, "yolox-s")
@@ -25,6 +25,10 @@ class YOLOXDetector:
         self.score_thr = score_thr
         self.nmsthre = nmsthre
         self.class_names = ["damage_panel"]  # クラス名
+
+        # 検出対象の縦か横幅の検出閾値を設定
+        self.size_x_thr = 100
+        self.size_y_thr = 100
 
     def predict(self, frame: np.ndarray):
         """
@@ -55,6 +59,9 @@ class YOLOXDetector:
         results = []
         for bbox, score, cls_id in zip(bboxes, scores, classes):
             x1, y1, x2, y2 = bbox.numpy().astype(int)
+            # 物体の幅または高さが50ピクセル未満なら除外
+            if (x2 - x1) < self.size_x_thr or (y2 - y1) < self.size_y_thr:
+                continue
             results.append((x1, y1, x2, y2, score.item(), cls_id))
         return results
 
