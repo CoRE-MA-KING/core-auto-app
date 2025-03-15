@@ -58,6 +58,7 @@ class Application(ApplicationInterface):
             elif not robot_state.record_video and self._is_recording:
                 self._realsense_camera.stop_recording()
                 self._is_recording = False
+            self._realsense_camera.set_target_panel(robot_state.target_panel)  # 照準対象のパネルの色を設定
 
             # カメラ画像取得 (video_idで切り替え)
             if robot_state.video_id == 0:
