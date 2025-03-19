@@ -27,14 +27,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--a_camera_name",
-        # default="/dev/front_camera",
-        default=0,
+        default="/dev/front_camera",
         help="device file (symlink) of camera A (front camera)",
     )
     parser.add_argument(
         "--b_camera_name",
-        # default="/dev/back_camera",
-        default=2,
+        default="/dev/back_camera",
         help="device file (symlink) of camera B (back camera)",
     )
     parser.add_argument(
