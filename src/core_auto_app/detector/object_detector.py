@@ -29,8 +29,8 @@ class YOLOXDetector:
         self.class_names = CLASS_NAMES
 
         # 検出対象のサイズ閾値
-        self.size_x_thr = 100
-        self.size_y_thr = 100
+        self.size_x_thr = 15
+        self.size_y_thr = 50
 
     def predict(self, frame: np.ndarray):
         """
