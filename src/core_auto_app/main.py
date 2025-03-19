@@ -27,17 +27,19 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--a_camera_name",
-        default="/dev/camera_front",
+        # default="/dev/front_camera",
+        default=0,
         help="device file (symlink) of camera A (front camera)",
     )
     parser.add_argument(
         "--b_camera_name",
-        default="/dev/camera_back",
+        # default="/dev/back_camera",
+        default=2,
         help="device file (symlink) of camera B (back camera)",
     )
     parser.add_argument(
         "--weight_path",
-        default="/home/nvidia/core_auto_app/models/yolox_s/4_0920_1000pic_best.pth",
+        default="/home/nvidia/core_auto_app/models/yolox_s/phase1_2_best_ckpt.pth",
         type=str,
         help="path to YOLOX weight file (.pth)"
     )
