@@ -98,7 +98,7 @@ class CvPresenter(Presenter):
         # cv2.putText(image, "ABCxyz", (300, 630), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255,255,255))
 
         cv2.putText(image,
-                    f"[Disk]L:{robot_state.reloaded_left_disks:>2}/R:{robot_state.reloaded_right_disks:>2} [Deg]:{robot_state.pitch_deg:5.1f} [State]:{state_str:<14} {record_txt}", (300, 690), cv2.FONT_HERSHEY_DUPLEX, 1.0, color=(255, 255, 255), thickness=2)
+                    f"[Disk]L:{robot_state.reloaded_left_disks:>2}/R:{robot_state.reloaded_right_disks:>2} [Deg]:{robot_state.pitch_deg:5.1f} [State]:{state_str:<14} {record_txt}", (320, 690), cv2.FONT_HERSHEY_DUPLEX, 1.0, color=(255, 255, 255), thickness=2)
 
         # # まとめて文字列を表示　
         # image = put_outline_text(ssss
