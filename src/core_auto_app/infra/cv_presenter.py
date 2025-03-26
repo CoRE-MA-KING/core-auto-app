@@ -31,18 +31,19 @@ def draw_crosshair(img, pos, color, shadow_color=None):
     """十字マークを表示する関数"""
     if not shadow_color:
         shadow_color = (0, 0, 0)
-
+    horizonal_marker_size = 300
+    vertical_marker_size = 200
     img = cv2.line(
-        img, (pos[0], pos[1] - 12), (pos[0], pos[1] + 12), shadow_color, thickness=4
+        img, (pos[0], pos[1] - 300), (pos[0], pos[1] + 300), shadow_color, thickness=1
     )
     img = cv2.line(
-        img, (pos[0] - 12, pos[1]), (pos[0] + 12, pos[1]), shadow_color, thickness=4
+        img, (pos[0] - 600, pos[1]), (pos[0] + 600, pos[1]), shadow_color, thickness=1
     )
     img = cv2.line(
-        img, (pos[0], pos[1] - 10), (pos[0], pos[1] + 10), color, thickness=2
+        img, (pos[0], pos[1] - vertical_marker_size), (pos[0], pos[1] + vertical_marker_size), color, thickness=2
     )
     img = cv2.line(
-        img, (pos[0] - 10, pos[1]), (pos[0] + 10, pos[1]), color, thickness=2
+        img, (pos[0] - horizonal_marker_size, pos[1]), (pos[0] + horizonal_marker_size, pos[1]), color, thickness=2
     )
     return img
 
@@ -108,9 +109,9 @@ class CvPresenter(Presenter):
         # )
 
         # # 十字を表示q
-        # image = draw_crosshair(
-        #     image, (image.shape[1] // 2, image.shape[0] // 2), (0, 255, 255)
-        # )
+        image = draw_crosshair(
+            image, (image.shape[1] // 2, image.shape[0] // 2), (255, 255, 255)
+        )
 
         # OpenCVの仕様上、cv2.waitKey()が呼ばれないと表示されない
         cv2.imshow("display", image)

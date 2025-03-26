@@ -65,7 +65,7 @@ class YOLOXDetector:
             if (x2 - x1) < self.size_x_thr or (y2 - y1) < self.size_y_thr:
                 continue
             results.append((x1, y1, x2, y2, score.item(), cls_id))
-        
+
         # スコアが0.8以上の検出結果のみを対象とし、最もスコアが高いものを採用
         valid_results = [det for det in results if det[4] >= self.score_thr]
         if valid_results:
@@ -82,10 +82,10 @@ class YOLOXDetector:
             # リソースファイルからクラス名を取得
             class_name = self.class_names[cls_id] if cls_id < len(self.class_names) else "unknown"
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, 
-                        f"{class_name} {score:.2f}",
-                        (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 
-                        0.75, 
-                        (0, 255, 0), 
-                        2)
+            # cv2.putText(frame, 
+            #             f"{class_name} {score:.2f}",
+            #             (x1, y1 - 10),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 
+            #             0.75, 
+            #             (0, 255, 0), 
+            #             2)

@@ -103,7 +103,11 @@ class ObjectTracker:
                 class_name = CLASS_NAMES[cls_id] if cls_id < len(CLASS_NAMES) else "unknown"
             else:
                 class_name = "unknown"
-            txt = f"ID:{track_id} {class_name} center=({cx},{cy})"
-            cv2.putText(frame, txt, (x1, y1 - 10),
+            # クラス名は使わないで表示
+            txt = "target"
+            text_size = cv2.getTextSize(txt, cv2.FONT_HERSHEY_SIMPLEX, 0.75, 2)[0]
+            text_x = x1 + (x2 - x1 - text_size[0]) // 2
+            text_y = y1 - 10
+            cv2.putText(frame, txt, (text_x, text_y),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
             cv2.circle(frame, (cx, cy), 3, (0, 255, 255), -1)
