@@ -98,8 +98,26 @@ class CvPresenter(Presenter):
 
         # cv2.putText(image, "ABCxyz", (300, 630), cv2.FONT_HERSHEY_DUPLEX, 1.0, (255,255,255))
 
-        cv2.putText(image,
-                    f"[Disk]L:{robot_state.reloaded_left_disks:>2}/R:{robot_state.reloaded_right_disks:>2} [Deg]:{robot_state.pitch_deg:5.1f} [State]:{state_str:<14} {record_txt}", (320, 690), cv2.FONT_HERSHEY_DUPLEX, 1.0, color=(255, 255, 255), thickness=2)
+        # 背景を黒で埋める矩形を描画
+        text_position = (320, 690)
+        font_scale = 1.0
+        thickness = 2
+        font = cv2.FONT_HERSHEY_DUPLEX
+        text = f"[Disc]L:{robot_state.reloaded_left_disks:>2}/R:{robot_state.reloaded_right_disks:>2} [Deg]:{robot_state.pitch_deg:5.1f} [State]:{state_str:<14} {record_txt}"
+        
+        # テキストサイズを計算
+        text_size, _ = cv2.getTextSize(text, font, font_scale, thickness)
+        text_width, text_height = text_size
+        
+        # 背景の矩形を描画
+        cv2.rectangle(image, 
+                  (text_position[0] - 5, text_position[1] - text_height - 5), 
+                  (text_position[0] + text_width + 5, text_position[1] + 5), 
+                  (0, 0, 0), 
+                  thickness=cv2.FILLED)
+        
+        # テキストを描画
+        cv2.putText(image, text, text_position, font, font_scale, color=(255, 255, 255), thickness=thickness)
 
         # # まとめて文字列を表示　
         # image = put_outline_text(ssss
