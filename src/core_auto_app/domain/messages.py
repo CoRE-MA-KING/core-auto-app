@@ -41,6 +41,7 @@ class RobotState(BaseModel):
     reloaded_right_disks: int = 0  # 枚
     video_id: int = 0  # 表示するカメラ 0 RealSense, 1 前方, 2 後方
     # flags: int  # 複数のフラグを1バイトでまとめて(bit: [2]自動照準 [1]録画 [0]射出可否)
+    target_panel: bool = False # True:青を照準、False:赤を照準
     auto_aim: bool = False
     record_video: bool = False
     ready_to_fire: bool = False

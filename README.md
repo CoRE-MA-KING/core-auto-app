@@ -170,26 +170,22 @@ Exec=/home/nvidia/core_auto_app/scripts/autostart.sh
 Type=Application
 ```
 
-PC起動時にカメラを指定のデバイスファイルで認識するために、以下の内容の` /etc/udev/rules.d/99-camera.rules`を作成して適用してください（カメラの数や型番で変わります）。
+PC起動時にカメラを指定のデバイスファイルで認識するために、以下の内容の` /etc/udev/rules.d/99-camera.rules`を作成して適用してください（カメラの数や型番で情報が変わります）。
 
 ```sh
-# Realsense RGB用（/dev/video4）
-SUBSYSTEM=="video4linux", KERNEL=="video*", \
-  ATTRS{idVendor}=="8086", ATTRS{idProduct}=="0b3a", \
-  ATTRS{interface}=="Intel(R) RealSense(TM) Depth Camera 435i RGB", \
-  SYMLINK+="camera_realsense_rgb"
-
-# 前方カメラ用（/dev/video6）— USBカメラ：識別にdevpath "4.4.1" を利用
+# front_camera RGB 4.4.1
 SUBSYSTEM=="video4linux", KERNEL=="video*", \
   ATTRS{idVendor}=="1bcf", ATTRS{idProduct}=="2281", \
   ATTRS{devpath}=="4.4.1", \
-  SYMLINK+="camera_front"
+  ATTR{index}=="0", \
+  SYMLINK+="front_camera"
 
-# 後方カメラ用（/dev/video8）— USBカメラ：識別にdevpath "4.4.2" を利用
+# front_camera RGB 4.4.2
 SUBSYSTEM=="video4linux", KERNEL=="video*", \
   ATTRS{idVendor}=="1bcf", ATTRS{idProduct}=="2281", \
   ATTRS{devpath}=="4.4.2", \
-  SYMLINK+="camera_back"
+  ATTR{index}=="0", \
+  SYMLINK+="back_camera"
 ```
 
 udevルールを適用します。

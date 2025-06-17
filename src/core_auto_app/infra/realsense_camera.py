@@ -62,6 +62,10 @@ class RealsenseCamera(Camera):
             self._tracker = ObjectTracker(fps=30.0)
             self._target_selector = AimingTargetSelector(image_center=(640, 360))
 
+        # 新たに、ターゲットとするパネルの指定フラグを追加
+        # False → blue_panel (クラス0) / True → red_panel (クラス1)
+        self.target_panel = False
+
         print("init realsense camera")
 
     @property
@@ -72,6 +76,13 @@ class RealsenseCamera(Camera):
     @property
     def is_running(self):
         return self._is_running
+
+    def set_target_panel(self, flag: bool):
+        """外部からターゲットパネルフラグを設定する
+           False → blue_panel (クラス0)
+           True  → red_panel (クラス1)
+        """
+        self.target_panel = flag
 
     def start(self):
         """カメラストリームを開始させる"""
@@ -143,8 +154,19 @@ class RealsenseCamera(Camera):
 
             # 物体検出を実施
             detections = self._detector.predict(frame)
-            # トラッキング更新
-            tracked_objects = self._tracker.update(detections)
+            if detections is None:
+                detections = []
+
+            # 【ここで target_panel フラグに応じたフィルタリングを実施】
+            # robot_state.target_panel が False → blue_panel (クラス0)
+            # robot_state.target_panel が True  → red_panel  (クラス1)
+            if self.target_panel:
+                filtered_detections = [det for det in detections if det[5] == 1]
+            else:
+                filtered_detections = [det for det in detections if det[5] == 0]
+
+            # フィルタ後の検出結果をtrackerに渡す
+            tracked_objects = self._tracker.update(filtered_detections)
             # 照準対象の決定
             aiming_target = self._target_selector.select_target(tracked_objects)
 

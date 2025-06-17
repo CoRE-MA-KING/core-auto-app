@@ -58,6 +58,7 @@ class Application(ApplicationInterface):
             elif not robot_state.record_video and self._is_recording:
                 self._realsense_camera.stop_recording()
                 self._is_recording = False
+            self._realsense_camera.set_target_panel(robot_state.target_panel)  # 照準対象のパネルの色を設定
 
             # カメラ画像取得 (video_idで切り替え)
             if robot_state.video_id == 0:
@@ -99,8 +100,8 @@ class Application(ApplicationInterface):
                 # print(f"Current FPS: {fps:.2f}")
 
             # FPS値を画面の左上(20,680)に表示 
-            fps_disp = f"FPS {fps:.2f}"
-            cv2.putText(color, fps_disp, (20, 680), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            # fps_disp = f"FPS {fps:.2f}"
+            # cv2.putText(color, fps_disp, (20, 680), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
             # 描画
             self._presenter.show(color, robot_state)
@@ -116,9 +117,15 @@ class Application(ApplicationInterface):
 
     def draw_aiming_target_info(self, frame, aiming_target):
         """
-        現在の照準対象IDと座標を画面左上に描画
+        現在の照準対象座標に小さい赤いサークルを描画
         """
         (cx, cy) = aiming_target
-        txt = f"Target: ({cx},{cy})"
-        # 左上(20,50)に表示 (お好みで位置を調整)
-        cv2.putText(frame, txt, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+        # バッテンマークを描画
+        line_length = 10  # バッテンの線の長さ
+        color = (0, 0, 255)  # 赤色
+        thickness = 2  # 線の太さ
+
+        # 左上から右下への線
+        cv2.line(frame, (cx - line_length, cy - line_length), (cx + line_length, cy + line_length), color, thickness)
+        # 右上から左下への線
+        cv2.line(frame, (cx + line_length, cy - line_length), (cx - line_length, cy + line_length), color, thickness)

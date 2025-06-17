@@ -97,6 +97,7 @@ class SerialRobotDriver(RobotDriver):
                         reloaded_left_disks=int(parts[3]),
                         reloaded_right_disks=int(parts[4]),
                         video_id=int(parts[5]),
+                        target_panel=bool((int(parts[6]) >> 3) & 0b00000001),
                         auto_aim=bool((int(parts[6]) >> 2) & 0b00000001),
                         record_video=bool((int(parts[6]) >> 1) & 0b00000001),
                         ready_to_fire=bool((int(parts[6]) >> 0) & 0b00000001),
